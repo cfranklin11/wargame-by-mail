@@ -16,5 +16,5 @@ Play wargames online a little bit at a time
 ## Running the app
 
 1. In the terminal, run `docker-compose start`.
-1. Run `npm run dev`.
-1. Navigate to `http://localhost:8080`
+2. Run `npm run dev`.
+3. Navigate to `http://localhost:8080`
