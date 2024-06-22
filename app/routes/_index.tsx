@@ -13,12 +13,12 @@ export const meta: MetaFunction = () => {
 
 export default function Index() {
   return (
-    <>
-      <h1>Wargame by Mail</h1>
+    <div className="text-center m-4">
+      <h1 className="text-4xl m-2 font-bold">Wargame by Mail</h1>
       <p>
         An online miniature wargame simulator that lets you play with friends
         asynchronously.
       </p>
-    </>
+    </div>
   );
 }
