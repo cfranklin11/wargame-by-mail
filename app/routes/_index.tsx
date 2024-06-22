@@ -1,29 +1,24 @@
-import type { LinksFunction, MetaFunction } from "@remix-run/node";
-import { ClientOnly } from "remix-utils/client-only";
-import App from "../app.client";
-
-export const links: LinksFunction = () => {
-  return [
-    {
-      rel: "stylesheet",
-      href: "styles/globals.css",
-    },
-  ];
-};
+import type { MetaFunction } from "@remix-run/node";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Phaser Remix Template" },
+    { title: "Wargame by Mail" },
     {
       name: "description",
       content:
-        "A Phaser 3 Remix project template that demonstrates Remix with React communication and uses Vite for bundling.",
+        "An online miniature wargame simulator that lets you play with friends asynchronously.",
     },
   ];
 };
 
 export default function Index() {
   return (
-    <ClientOnly fallback={<h3>Loading Game...</h3>}>{() => <App />}</ClientOnly>
+    <>
+      <h1>Wargame by Mail</h1>
+      <p>
+        An online miniature wargame simulator that lets you play with friends
+        asynchronously.
+      </p>
+    </>
   );
 }
