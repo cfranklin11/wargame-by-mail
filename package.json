@@ -24,9 +24,14 @@
     "format": "prettier . --check"
   },
   "dependencies": {
+    "@chakra-ui/react": "^2.8.2",
+    "@emotion/react": "^11.11.4",
+    "@emotion/server": "^11.11.0",
+    "@emotion/styled": "^11.11.5",
     "@remix-run/node": "^2.9.2",
     "@remix-run/react": "^2.9.2",
     "@remix-run/serve": "^2.9.2",
+    "framer-motion": "^11.2.11",
     "isbot": "^4.1.0",
     "phaser": "^3.80.1",
     "react": "^18.2.0",
