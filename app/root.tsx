@@ -7,14 +7,6 @@ import {
 } from "@remix-run/react";
 import { ChakraProvider } from "@chakra-ui/react";
 
-import type { LinksFunction } from "@remix-run/node";
-
-import stylesheet from "~/tailwind.css?url";
-
-export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: stylesheet },
-];
-
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
