@@ -26,18 +26,18 @@ export default function Index() {
             friends asynchronously.
           </Text>
         </Box>
-        <Link
-          as={RemixLink}
-          href="/"
-          padding="1rem"
-          backgroundColor="darkgray"
-          textColor="white"
-          _hover={{ backgroundColor: "gray" }}
-          _focus={{ backgroundColor: "gray" }}
-          style={{ textDecoration: "none" }}
-        >
-          Start new game
-        </Link>
+        <RemixLink to="/games/new">
+          <Link
+            padding="1rem"
+            backgroundColor="darkgray"
+            textColor="white"
+            _hover={{ backgroundColor: "gray" }}
+            _focus={{ backgroundColor: "gray" }}
+            style={{ textDecoration: "none" }}
+          >
+            Start new game
+          </Link>
+        </RemixLink>
       </VStack>
     </Container>
   );
