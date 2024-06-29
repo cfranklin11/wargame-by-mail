@@ -1,43 +1,53 @@
 import {
   Container,
-  Flex,
   Heading,
-  Spinner as ChakraSpinner,
+  FormControl,
+  FormLabel,
+  Input,
+  Button,
+  Textarea,
 } from "@chakra-ui/react";
 import { MetaFunction } from "@remix-run/node";
-import { ClientOnly } from "remix-utils/client-only";
+import { Form } from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
   return [
     { title: "Wargame by Mail: Set up a new game" },
     {
       name: "description",
-      content:
-        "Set up a new game of Wargame by Mail. Place terrain on the table, and invite a friend to play.",
+      content: "Set up a new game of Wargame by Mail.",
     },
   ];
 };
 
-function Spinner() {
-  return (
-    <Flex width="100%" height="100vh" justify="center" align="center">
-      <ChakraSpinner size="xl" />
-    </Flex>
-  );
-}
-
 function NewGamePage() {
   return (
     <Container>
-      <Heading as="h1" size="2xl" margin="1rem">
+      <Heading
+        as="h1"
+        size={{ base: "lg", lg: "2xl" }}
+        margin="1rem"
+        textAlign="center"
+      >
         Set up a new game
       </Heading>
+      <Form action="" method="post">
+        <FormControl isRequired marginTop="1rem" marginBottom="1rem">
+          <FormLabel>Name</FormLabel>
+          <Input type="text" name="name" />
+        </FormControl>
+        <FormControl marginTop="1rem" marginBottom="1rem">
+          <FormLabel>Description</FormLabel>
+          <Textarea name="description" />
+        </FormControl>
+        <Button width="100%" type="submit">
+          Create game
+        </Button>
+      </Form>
     </Container>
   );
 }
 
 export default function NewGame() {
-  return (
-    <ClientOnly fallback={<Spinner />}>{() => <NewGamePage />}</ClientOnly>
-  );
+  return <NewGamePage />;
 }
