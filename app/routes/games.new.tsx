@@ -31,7 +31,7 @@ function NewGamePage() {
       >
         Set up a new game
       </Heading>
-      <Form action="" method="post">
+      <Form action="/games" method="post">
         <FormControl isRequired marginTop="1rem" marginBottom="1rem">
           <FormLabel>Name</FormLabel>
           <Input type="text" name="name" />
