@@ -1,6 +1,8 @@
-import { Heading, Text, Link, Container, Box, VStack } from "@chakra-ui/react";
+import { Heading, Text, Container, Box, VStack } from "@chakra-ui/react";
 import type { MetaFunction } from "@remix-run/node";
-import { Link as RemixLink } from "@remix-run/react";
+import { Link } from "@remix-run/react";
+import styled from "@emotion/styled";
+import { ReactNode } from "react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -12,6 +14,28 @@ export const meta: MetaFunction = () => {
     },
   ];
 };
+
+// Remix's Link component really doesn't play nice with styled components,
+// so this is what I came up with to work around it.
+const ButtonLinkStyles = styled.div`
+  a {
+    padding: 1rem;
+    background-color: darkgray;
+    color: white;
+    text-decoration: none;
+    :hover,
+    :focus {
+      background-color: gray;
+    }
+  }
+`;
+function ButtonLink({ to, children }: { to: string; children: ReactNode }) {
+  return (
+    <ButtonLinkStyles>
+      <Link to={to}>{children}</Link>
+    </ButtonLinkStyles>
+  );
+}
 
 export default function Index() {
   return (
@@ -26,18 +50,7 @@ export default function Index() {
             friends asynchronously.
           </Text>
         </Box>
-        <RemixLink to="/games/new">
-          <Link
-            padding="1rem"
-            backgroundColor="darkgray"
-            textColor="white"
-            _hover={{ backgroundColor: "gray" }}
-            _focus={{ backgroundColor: "gray" }}
-            style={{ textDecoration: "none" }}
-          >
-            Start new game
-          </Link>
-        </RemixLink>
+        <ButtonLink to="/games/new">Start new game</ButtonLink>
       </VStack>
     </Container>
   );
