@@ -10,5 +10,5 @@ export const action: ActionFunction = async ({ request }) => {
   const gameAttributes = Object.fromEntries(formData) as GameFormData;
 
   const game = await db.game.create({ data: gameAttributes });
-  return redirect(`/games/${game.id}/edit`);
+  return redirect(`/games/${game.id}/terrains/new`);
 };
