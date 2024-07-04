@@ -7,8 +7,11 @@ import {
   Button,
   Textarea,
 } from "@chakra-ui/react";
-import { MetaFunction } from "@remix-run/node";
+import { MetaFunction, ActionFunction, redirect } from "@remix-run/node";
 import { Form } from "@remix-run/react";
+import * as R from "ramda";
+
+import db from "../.server/db";
 
 export const meta: MetaFunction = () => {
   return [
@@ -19,6 +22,16 @@ export const meta: MetaFunction = () => {
     },
   ];
 };
+
+export const action: ActionFunction = async ({ request }) =>
+  R.pipe(
+    R.invoker(0, "formData"),
+    R.andThen(Object.fromEntries),
+    R.andThen(R.objOf("data")),
+    R.andThen(db.game.create),
+    R.andThen(R.prop("id")),
+    R.andThen((id) => redirect(`/games/${id}/terrains/new`)),
+  )(request);
 
 function NewGamePage() {
   return (
@@ -31,7 +44,7 @@ function NewGamePage() {
       >
         Set up a new game
       </Heading>
-      <Form action="/games" method="post">
+      <Form method="post">
         <FormControl isRequired marginTop="1rem" marginBottom="1rem">
           <FormLabel>Name</FormLabel>
           <Input type="text" name="name" />
