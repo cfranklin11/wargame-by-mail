@@ -8,11 +8,12 @@ datasource db {
 }
 
 model Game {
-  id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
   name        String
-  description String   @default("")
+  description String    @default("")
+  Terrain     Terrain[]
 
   @@map("games")
 }
@@ -32,6 +33,8 @@ model Terrain {
   typeId    Int          @map("terrain_type_id")
   shape     TerrainShape @relation(fields: [shapeId], references: [id])
   shapeId   Int          @map("terrain_shape_id")
+  game      Game         @relation(fields: [gameId], references: [id])
+  gameId    Int          @map("game_id")
 
   @@map("terrains")
 }
@@ -50,6 +53,7 @@ model TerrainShape {
   id        Int       @id @default(autoincrement())
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
+  name      String
   terrains  Terrain[]
 
   @@map("terrain_shapes")
