@@ -1,6 +1,13 @@
-import { Heading, Text, Link, Container, Box, VStack } from "@chakra-ui/react";
+import {
+  Heading,
+  Text,
+  Container,
+  Box,
+  VStack,
+  Button,
+} from "@chakra-ui/react";
 import type { MetaFunction } from "@remix-run/node";
-import { Link as RemixLink } from "@remix-run/react";
+import { Link } from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -26,18 +33,9 @@ export default function Index() {
             friends asynchronously.
           </Text>
         </Box>
-        <RemixLink to="/games/new">
-          <Link
-            padding="1rem"
-            backgroundColor="darkgray"
-            textColor="white"
-            _hover={{ backgroundColor: "gray" }}
-            _focus={{ backgroundColor: "gray" }}
-            style={{ textDecoration: "none" }}
-          >
-            Start new game
-          </Link>
-        </RemixLink>
+        <Link to={"/games/new"}>
+          <Button width="100%">Start new game</Button>
+        </Link>
       </VStack>
     </Container>
   );
