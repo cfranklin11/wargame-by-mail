@@ -4,13 +4,16 @@
  * For more information, see https://remix.run/file-conventions/entry.server
  */
 
-import { PassThrough } from "node:stream";
+import { PassThrough, Transform } from "node:stream";
 
 import type { AppLoadContext, EntryContext } from "@remix-run/node";
 import { createReadableStreamFromReadable } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
+import createEmotionCache from "@emotion/cache";
+import { CacheProvider as EmotionCacheProvider } from "@emotion/react";
+import createEmotionServer from "@emotion/server/create-instance";
 
 const ABORT_DELAY = 5_000;
 
@@ -97,17 +100,27 @@ function handleBrowserRequest(
 ) {
   return new Promise((resolve, reject) => {
     let shellRendered = false;
+    const emotionCache = createEmotionCache({ key: "css" });
     const { pipe, abort } = renderToPipeableStream(
-      <RemixServer
-        context={remixContext}
-        url={request.url}
-        abortDelay={ABORT_DELAY}
-      />,
+      <EmotionCacheProvider value={emotionCache}>
+        <RemixServer
+          context={remixContext}
+          url={request.url}
+          abortDelay={ABORT_DELAY}
+        />
+      </EmotionCacheProvider>,
       {
         onShellReady() {
           shellRendered = true;
           const body = new PassThrough();
-          const stream = createReadableStreamFromReadable(body);
+
+          const emotionServer = createEmotionServer(emotionCache);
+          const bodyWithStyles = emotionServer.renderStylesToNodeStream();
+          body.pipe(bodyWithStyles);
+
+          const stream = createReadableStreamFromReadable(
+            bodyWithStyles as Transform,
+          );
 
           responseHeaders.set("Content-Type", "text/html");
 
