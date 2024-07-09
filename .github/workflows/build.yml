@@ -5,16 +5,33 @@ on: push
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_PASSWORD: password
+      DATABASE_USER: user
+      DATABASE: test
+      DATABASE_URL: "postgresql://user:password@localhost:5432/test?schema=public"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
       - name: Install dependencies
-        run: npm install
+        run: npm install -f
       - name: Linting
+        if: ${{ always() }}
         run: npm run lint
       - name: Check types
+        if: ${{ always() }}
         run: npm run typecheck
       - name: Check formatting
+        if: ${{ always() }}
         run: npm run format
+      - uses: hoverkraft-tech/compose-action@v2.0.1
+      - name: Run e2e tests
+        id: e2e
+        run: npm run test:ci
+      - uses: actions/upload-artifact@v4
+        if: ${{ failure() && steps.e2e.outcome == 'failure' }}
+        with:
+          name: e2e-screenshots
+          path: cypress/screenshots/**/*
