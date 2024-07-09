@@ -1,0 +1,11 @@
+.env*
+
+*.md
+LICENSE
+.editorconfig
+
+node_modules
+cypress/screenshots
+.github
+
+.DS_Store

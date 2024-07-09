@@ -5,3 +5,5 @@ node_modules
 .env
 
 cypress/screenshots
+
+.DS_Store

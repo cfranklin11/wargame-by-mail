@@ -13,4 +13,14 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
+  optimizeDeps: {
+    include: [
+      "@chakra-ui/icons",
+      "remix-utils/client-only",
+      "@remix-run/node",
+      "ramda",
+      "@prisma/client",
+      "tiny-invariant",
+    ],
+  },
 });

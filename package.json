@@ -20,8 +20,17 @@
     "dev": "remix vite:dev",
     "format": "prettier . --check",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
+    "prisma:reset": "prisma migrate deploy",
+    "postinstall": "prisma generate",
     "start": "remix-serve ./build/server/index.js",
+    "test:ci": "run-s test:setup test:e2e",
+    "test:cypress": "cypress run -b firefox",
+    "test:e2e": "start-server-and-test dev http://localhost:5173 test:cypress",
+    "test:setup": "prisma migrate reset -f",
     "typecheck": "tsc"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
@@ -60,8 +69,10 @@
     "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "npm-run-all": "^4.1.5",
     "prettier": "3.3.2",
     "prisma": "^5.15.1",
+    "start-server-and-test": "^2.0.4",
     "tsx": "^4.16.2",
     "typescript": "^5.1.6",
     "vite": "^5.1.0",
