@@ -15,7 +15,6 @@ services:
       start_period: 30s
   e2e:
     build: .
-    command: npm run test:ci
     volumes:
       - ./cypress/screenshots:/app/cypress/screenshots
     environment:
