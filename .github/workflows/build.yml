@@ -10,6 +10,7 @@ jobs:
       DATABASE_USER: user
       DATABASE: test
       DATABASE_URL: "postgresql://user:password@localhost:5432/test?schema=public"
+      SECRET: supersecretsauce
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
