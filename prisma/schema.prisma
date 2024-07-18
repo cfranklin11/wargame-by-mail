@@ -58,3 +58,14 @@ model TerrainShape {
 
   @@map("terrain_shapes")
 }
+
+model User {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  email     String   @unique
+  password  String
+  username  String   @unique
+
+  @@map("users")
+}
