@@ -33,8 +33,8 @@ export default function Index() {
             friends asynchronously.
           </Text>
         </Box>
-        <Link to={"/games/new"}>
-          <Button width="100%">Start new game</Button>
+        <Link to={"/signup"}>
+          <Button width="100%">Sign up</Button>
         </Link>
       </VStack>
     </Container>
