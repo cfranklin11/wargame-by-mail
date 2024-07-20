@@ -16,8 +16,8 @@ function log_errors() {
 }
 
 function clean_up() {
-  docker-compose exec db psql -c "DROP DATABASE IF EXISTS test;" -U $DATABASE_USER
   export DATABASE_URL=$ORIGINAL_DATABASE_URL
+  docker-compose exec db psql -c "DROP DATABASE IF EXISTS test;" -U $DATABASE_USER
 
   exit ${EXIT_CODE}
 }

@@ -1,7 +1,7 @@
 describe("Creating a new game", () => {
   it("creates the game", () => {
     cy.visit("/");
-    cy.findByRole("link", { name: "Start new game" }).click();
+    cy.findByRole("link", { name: "Start a game" }).click();
 
     cy.location("pathname").should("match", /\/games\/new/);
     cy.findByRole("heading", { name: "Set up a new game" });

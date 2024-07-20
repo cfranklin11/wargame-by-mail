@@ -33,9 +33,16 @@ export default function Index() {
             friends asynchronously.
           </Text>
         </Box>
-        <Link to={"/signup"}>
-          <Button width="100%">Sign up</Button>
-        </Link>
+        <Box width="100%">
+          <Link to={"/login"}>
+            <Button width="100%" marginBottom="1rem">
+              Log in
+            </Button>
+          </Link>
+          <Link to={"/signup"}>
+            <Button width="100%">Sign up</Button>
+          </Link>
+        </Box>
       </VStack>
     </Container>
   );

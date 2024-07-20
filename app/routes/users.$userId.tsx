@@ -1,14 +1,19 @@
-import { Container, Heading } from "@chakra-ui/react";
+import { Button, Container, Heading } from "@chakra-ui/react";
 import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Link, redirect, useLoaderData } from "@remix-run/react";
+import invariant from "tiny-invariant";
 
 import { authenticator } from "~/.server/auth";
 import type { User } from "~/.server/db";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const user = await authenticator.isAuthenticated(request, {
-    failureRedirect: "/",
+    failureRedirect: "/login",
   });
+  invariant(typeof params.userId === "string");
+  if (user.id !== parseInt(params.userId)) {
+    return redirect(`/users/${user.id}`);
+  }
 
   return json({ user });
 };
@@ -28,6 +33,9 @@ export default function UserPage() {
       >
         {username}
       </Heading>
+      <Link to={"/games/new"}>
+        <Button width="100%">Start a game</Button>
+      </Link>
     </Container>
   );
 }

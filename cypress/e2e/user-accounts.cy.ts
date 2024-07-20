@@ -1,5 +1,11 @@
 import { faker } from "@faker-js/faker";
 
+const SEEDED_USER = {
+  username: "testuser",
+  email: "testuser@wargamebymail.com",
+  password: "supersecretsauce",
+};
+
 describe("User", () => {
   it("can sign up", () => {
     const username = faker.internet.userName();
@@ -38,5 +44,25 @@ describe("User", () => {
     cy.findByText("Username already taken");
     cy.findByText("An account for this email already exists");
     cy.location("pathname").should("equal", "/signup");
+  });
+
+  it("can log in", () => {
+    cy.visit("/");
+    cy.findByRole("link", { name: "Log in" }).click();
+
+    cy.location("pathname").should("equal", "/login");
+    cy.findByRole("heading", { name: "Log in" });
+
+    cy.findByLabelText("Email*").type(SEEDED_USER.email);
+    cy.findByLabelText("Password*").type(
+      "prettysurenotarealpasswordkthnxbyebbq",
+    );
+    cy.findByRole("button", { name: "Log in" }).click();
+    cy.findByText("Either the email or password are incorrect");
+    cy.findByLabelText("Password*").clear().type(SEEDED_USER.password);
+    cy.findByRole("button", { name: "Log in" }).click();
+
+    cy.location("pathname").should("match", /users\/\d+/);
+    cy.findByRole("heading", { name: SEEDED_USER.username });
   });
 });

@@ -46,6 +46,24 @@ const db = new PrismaClient().$extends({
           data: { ...args.data, password: hashedPassword },
         });
       },
+      createMany: async ({ args, query }) => {
+        const data = await Promise.all(
+          (Array.isArray(args.data) ? args.data : [args.data]).map(
+            async (userData) => {
+              await UserCreateInput.parseAsync(userData);
+              const password = userData.password;
+              const salt = await bcrypt.genSalt(10);
+              const hashedPassword = await bcrypt.hash(password, salt);
+              return { ...userData, password: hashedPassword };
+            },
+          ),
+        );
+
+        return query({
+          ...args,
+          data,
+        });
+      },
     },
   },
 });

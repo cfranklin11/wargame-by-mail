@@ -10,7 +10,6 @@ export const authenticator = new Authenticator<User>(sessionStorage);
 
 authenticator.use(
   new FormStrategy(async ({ form }) => {
-    const username = form.get("username");
     const password = form.get("password");
     const email = form.get("email");
 
@@ -20,30 +19,14 @@ authenticator.use(
     invariant(typeof email === "string", "email must be a string");
     invariant(email.length > 0, "email must not be empty");
 
-    const maybeUser = await db.user.findUnique({ where: { email } });
+    const user = await db.user.findFirstOrThrow({ where: { email } });
 
-    if (maybeUser) {
-      const user = maybeUser;
-      const storedHashedPassword = user.password;
-
-      const isPasswordValid = bcrypt.compare(password, storedHashedPassword);
-      invariant(isPasswordValid, "incorrect password");
-      return user;
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    invariant(typeof username === "string", "username must be a string");
-    invariant(username.length > 0, "username must not be empty");
-
-    const user = await db.user.create({
-      data: {
-        username,
-        email,
-        password: hashedPassword,
-      },
-    });
+    const storedHashedPassword = user.password;
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      storedHashedPassword,
+    );
+    invariant(isPasswordValid, "password is incorrect");
 
     return user;
   }),

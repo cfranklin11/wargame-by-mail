@@ -1,9 +1,22 @@
-import { PrismaClient } from "@prisma/client";
+import { parseArgs } from "node:util";
+import db from "~/.server/db";
 
-const prisma = new PrismaClient();
+async function seedTestData() {
+  await db.$transaction(async (tx) => {
+    await tx.user.createMany({
+      data: [
+        {
+          username: "testuser",
+          email: "testuser@wargamebymail.com",
+          password: "supersecretsauce",
+        },
+      ],
+    });
+  });
+}
 
 async function main() {
-  await prisma.$transaction(async (tx) => {
+  await db.$transaction(async (tx) => {
     await tx.terrainType.createMany({
       data: [{ name: "woods" }, { name: "ruins" }, { name: "crater" }],
     });
@@ -11,6 +24,18 @@ async function main() {
       data: [{ name: "rectangle" }, { name: "oval" }],
     });
   });
+
+  const {
+    values: { environment },
+  } = parseArgs({
+    options: {
+      environment: { type: "string" },
+    },
+  });
+
+  if (environment === "test") {
+    await seedTestData();
+  }
 }
 
 main()
@@ -18,4 +43,4 @@ main()
     console.error(e);
     process.exit(1);
   })
-  .finally(async () => await prisma.$disconnect());
+  .finally(async () => await db.$disconnect());
