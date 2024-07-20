@@ -1,6 +1,6 @@
-import { Button, Container, Heading } from "@chakra-ui/react";
+import { Box, Button, Container, Heading, HStack } from "@chakra-ui/react";
 import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { Link, redirect, useLoaderData } from "@remix-run/react";
+import { Form, Link, redirect, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
 import { authenticator } from "~/.server/auth";
@@ -24,18 +24,29 @@ export default function UserPage() {
   } = useLoaderData<{ user: User }>();
 
   return (
-    <Container>
-      <Heading
-        as="h1"
-        size={{ base: "lg", lg: "2xl" }}
-        margin="1rem"
-        textAlign="center"
-      >
-        {username}
-      </Heading>
-      <Link to={"/games/new"}>
-        <Button width="100%">Start a game</Button>
-      </Link>
-    </Container>
+    <>
+      <Box width="100%">
+        <HStack justifyContent="end">
+          <Form method="post" action="/logout">
+            <Button type="submit" margin="1rem">
+              Log out
+            </Button>
+          </Form>
+        </HStack>
+      </Box>
+      <Container>
+        <Heading
+          as="h1"
+          size={{ base: "lg", lg: "2xl" }}
+          margin="1rem"
+          textAlign="center"
+        >
+          {username}
+        </Heading>
+        <Link to={"/games/new"}>
+          <Button width="100%">Start a game</Button>
+        </Link>
+      </Container>
+    </>
   );
 }

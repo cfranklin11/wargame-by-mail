@@ -46,7 +46,7 @@ describe("User", () => {
     cy.location("pathname").should("equal", "/signup");
   });
 
-  it("can log in", () => {
+  it("can log in and out", () => {
     cy.visit("/");
     cy.findByRole("link", { name: "Log in" }).click();
 
@@ -64,5 +64,11 @@ describe("User", () => {
 
     cy.location("pathname").should("match", /users\/\d+/);
     cy.findByRole("heading", { name: SEEDED_USER.username });
+
+    cy.findByRole("button", { name: "Log out" }).click();
+    cy.location("pathname").should("equal", "/login");
+    cy.visit("/users/1");
+    cy.location("pathname").should("equal", "/login");
+    cy.findByRole("heading", { name: "Log in" });
   });
 });
