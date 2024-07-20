@@ -14,17 +14,28 @@ authenticator.use(
     const password = form.get("password");
     const email = form.get("email");
 
-    invariant(typeof username === "string", "username must be a string");
-    invariant(username.length > 0, "username must not be empty");
-
     invariant(typeof password === "string", "password must be a string");
     invariant(password.length > 0, "password must not be empty");
 
     invariant(typeof email === "string", "email must be a string");
     invariant(email.length > 0, "email must not be empty");
 
+    const maybeUser = await db.user.findUnique({ where: { email } });
+
+    if (maybeUser) {
+      const user = maybeUser;
+      const storedHashedPassword = user.password;
+
+      const isPasswordValid = bcrypt.compare(password, storedHashedPassword);
+      invariant(isPasswordValid, "incorrect password");
+      return user;
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
+
+    invariant(typeof username === "string", "username must be a string");
+    invariant(username.length > 0, "username must not be empty");
 
     const user = await db.user.create({
       data: {
