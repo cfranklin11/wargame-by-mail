@@ -1,4 +1,15 @@
-import { Box, Button, Container, Heading, HStack } from "@chakra-ui/react";
+import {
+  Avatar,
+  Box,
+  Button,
+  Container,
+  Heading,
+  HStack,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+} from "@chakra-ui/react";
 import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { Form, Link, redirect, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
@@ -20,18 +31,26 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
 export default function UserPage() {
   const {
-    user: { username },
+    user: { username, id },
   } = useLoaderData<{ user: User }>();
 
   return (
     <>
       <Box width="100%">
         <HStack justifyContent="end">
-          <Form method="post" action="/logout">
-            <Button type="submit" margin="1rem">
-              Log out
-            </Button>
-          </Form>
+          <Menu>
+            <MenuButton margin="1rem">
+              <Avatar name={username}></Avatar>
+            </MenuButton>
+            <MenuList>
+              <MenuItem>
+                <Link to={`/users/${id}`}>Account page</Link>
+              </MenuItem>
+              <Form method="post" action="/logout">
+                <MenuItem type="submit">Log out</MenuItem>
+              </Form>
+            </MenuList>
+          </Menu>
         </HStack>
       </Box>
       <Container>
