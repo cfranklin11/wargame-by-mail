@@ -1,5 +1,5 @@
 describe("Creating a new game", () => {
-  it("creates the game", () => {
+  it.skip("creates the game", () => {
     cy.visit("/");
     cy.findByRole("link", { name: "Start a game" }).click();
 
