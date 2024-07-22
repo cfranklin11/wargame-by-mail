@@ -1,10 +1,10 @@
 import { defineConfig } from "cypress";
 
-const { BASE_URL = "http://localhost:5173" } = process.env;
+const { CYPRESS_BASE_URL = "http://localhost:7357" } = process.env;
 
 export default defineConfig({
   e2e: {
-    baseUrl: BASE_URL,
+    baseUrl: CYPRESS_BASE_URL,
     setupNodeEvents() {
       // implement node event listeners here
     },

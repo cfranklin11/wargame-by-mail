@@ -2,6 +2,8 @@ import { vitePlugin as remix } from "@remix-run/dev";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
+const { PORT } = process.env;
+
 export default defineConfig({
   plugins: [
     remix({
@@ -21,6 +23,13 @@ export default defineConfig({
       "ramda",
       "@prisma/client",
       "tiny-invariant",
+      "zod",
+      "remix-auth",
+      "remix-auth-form",
+      "bcryptjs",
     ],
+  },
+  server: {
+    port: PORT ? parseInt(PORT) : undefined,
   },
 });

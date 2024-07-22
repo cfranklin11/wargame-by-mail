@@ -10,13 +10,14 @@ jobs:
       DATABASE_USER: user
       DATABASE: test
       DATABASE_URL: "postgresql://user:password@localhost:5432/test?schema=public"
+      SECRET: supersecretsauce
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "22.3"
       - name: Install dependencies
-        run: npm install -f
+        run: npm install
       - name: Linting
         if: ${{ always() }}
         run: npm run lint
@@ -29,7 +30,7 @@ jobs:
       - uses: hoverkraft-tech/compose-action@v2.0.1
       - name: Run e2e tests
         id: e2e
-        run: npm run test:ci
+        run: PORT=7357 npm run test:ci
       - uses: actions/upload-artifact@v4
         if: ${{ failure() && steps.e2e.outcome == 'failure' }}
         with:
