@@ -11,28 +11,22 @@ import {
   MenuList,
 } from "@chakra-ui/react";
 import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { Form, Link, redirect, useLoaderData } from "@remix-run/react";
-import invariant from "tiny-invariant";
+import { Form, Link, useLoaderData } from "@remix-run/react";
 
 import { authenticator } from "~/.server/auth";
-import type { User } from "~/.server/db";
 
-export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+export async function loader({ request }: LoaderFunctionArgs) {
   const user = await authenticator.isAuthenticated(request, {
     failureRedirect: "/login",
   });
-  invariant(typeof params.userId === "string");
-  if (user.id !== parseInt(params.userId)) {
-    return redirect(`/users/${user.id}`);
-  }
 
   return json({ user });
-};
+}
 
-export default function UserPage() {
+export default function AccountPage() {
   const {
     user: { username, id },
-  } = useLoaderData<{ user: User }>();
+  } = useLoaderData<typeof loader>();
 
   return (
     <>

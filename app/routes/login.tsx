@@ -7,12 +7,7 @@ import {
   Button,
   FormErrorMessage,
 } from "@chakra-ui/react";
-import {
-  MetaFunction,
-  redirect,
-  json,
-  ActionFunctionArgs,
-} from "@remix-run/node";
+import { MetaFunction, json, ActionFunctionArgs } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import { AuthorizationError } from "remix-auth";
 
@@ -31,13 +26,10 @@ export const meta: MetaFunction = () => {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   try {
-    const user = await authenticator.authenticate("form", request, {
+    await authenticator.authenticate("form", request, {
       throwOnError: true,
+      successRedirect: "/account",
     });
-    const session = await getSession(request.headers.get("cookie"));
-    session.set(authenticator.sessionKey, user);
-    const headers = new Headers({ "Set-Cookie": await commitSession(session) });
-    return redirect(`/users/${user.id}`, { headers });
   } catch (error) {
     if (error instanceof Response) return error;
     if (error instanceof AuthorizationError) {

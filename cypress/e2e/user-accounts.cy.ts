@@ -28,7 +28,7 @@ describe("User", () => {
     );
     cy.findByRole("button", { name: "Create account" }).click();
 
-    cy.location("pathname").should("match", /users\/\d+/);
+    cy.location("pathname").should("equal", "/account");
     cy.findByRole("heading", { name: username });
 
     // Check database constraints
@@ -62,12 +62,13 @@ describe("User", () => {
     cy.findByLabelText("Password*").clear().type(SEEDED_USER.password);
     cy.findByRole("button", { name: "Log in" }).click();
 
-    cy.location("pathname").should("match", /users\/\d+/);
+    cy.location("pathname").should("equal", "/account");
     cy.findByRole("heading", { name: SEEDED_USER.username });
 
-    cy.findByRole("button", { name: "Log out" }).click();
+    cy.findByRole("button", { name: SEEDED_USER.username }).click();
+    cy.findByRole("menuitem", { name: "Log out" }).click();
     cy.location("pathname").should("equal", "/login");
-    cy.visit("/users/1");
+    cy.visit("/account");
     cy.location("pathname").should("equal", "/login");
     cy.findByRole("heading", { name: "Log in" });
   });

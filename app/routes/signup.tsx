@@ -59,7 +59,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const session = await getSession(request.headers.get("cookie"));
     session.set(authenticator.sessionKey, user);
     const headers = new Headers({ "Set-Cookie": await commitSession(session) });
-    return redirect(`/users/${user.id}`, { headers });
+    return redirect("/account", { headers });
   } catch (error) {
     if (error instanceof ZodError) {
       const session = await getSession(request.headers.get("cookie"));
