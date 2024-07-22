@@ -1,12 +1,6 @@
 import { faker } from "@faker-js/faker";
 
-const SEEDED_USER = {
-  username: "testuser",
-  email: "testuser@wargamebymail.com",
-  password: "supersecretsauce",
-};
-
-describe("User", () => {
+describe("User accounts", () => {
   it("can sign up", () => {
     const username = faker.internet.userName();
     const email = faker.internet.email();
@@ -55,23 +49,25 @@ describe("User", () => {
     cy.location("pathname").should("equal", "/login");
     cy.findByRole("heading", { name: "Log in" });
 
-    cy.findByLabelText("Email*").type(SEEDED_USER.email);
-    cy.findByLabelText("Password*").type(
-      "prettysurenotarealpasswordkthnxbyebbq",
-    );
-    cy.findByRole("button", { name: "Log in" }).click();
-    cy.findByText("Either the email or password are incorrect");
-    cy.findByLabelText("Password*").clear().type(SEEDED_USER.password);
-    cy.findByRole("button", { name: "Log in" }).click();
+    cy.fixture("user").then(({ username, email, password }) => {
+      cy.findByLabelText("Email*").type(email);
+      cy.findByLabelText("Password*").type(
+        "prettysurenotarealpasswordkthnxbyebbq",
+      );
+      cy.findByRole("button", { name: "Log in" }).click();
+      cy.findByText("Either the email or password are incorrect");
+      cy.findByLabelText("Password*").clear().type(password);
+      cy.findByRole("button", { name: "Log in" }).click();
 
-    cy.location("pathname").should("equal", "/account");
-    cy.findByRole("heading", { name: SEEDED_USER.username });
+      cy.location("pathname").should("equal", "/account");
+      cy.findByRole("heading", { name: username });
 
-    cy.findByRole("button", { name: SEEDED_USER.username }).click();
-    cy.findByRole("menuitem", { name: "Log out" }).click();
-    cy.location("pathname").should("equal", "/login");
-    cy.visit("/account");
-    cy.location("pathname").should("equal", "/login");
-    cy.findByRole("heading", { name: "Log in" });
+      cy.findByRole("button", { name: username }).click();
+      cy.findByRole("menuitem", { name: "Log out" }).click();
+      cy.location("pathname").should("equal", "/login");
+      cy.visit("/account");
+      cy.location("pathname").should("equal", "/login");
+      cy.findByRole("heading", { name: "Log in" });
+    });
   });
 });
