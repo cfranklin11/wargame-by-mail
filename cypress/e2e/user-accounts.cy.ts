@@ -16,9 +16,10 @@ describe("User", () => {
 
     cy.location("pathname").should("equal", "/signup");
     cy.findByRole("heading", { name: "Sign up" });
-    cy.findByLabelText("Email*").type(email);
+
+    cy.findByRole("textbox", { name: "Username" }).type(username);
+    cy.findByRole("textbox", { name: "Email" }).type(email);
     cy.findByLabelText("Password*").type("short");
-    cy.findByLabelText("Username*").type(username);
     cy.findByRole("button", { name: "Create account" }).click();
 
     // Check serverside validations
@@ -34,11 +35,12 @@ describe("User", () => {
     // Check database constraints
     cy.visit("/signup");
     cy.findByRole("heading", { name: "Sign up" });
-    cy.findByLabelText("Email*").type(email);
+
+    cy.findByRole("textbox", { name: "Username" }).type(username);
+    cy.findByRole("textbox", { name: "Email" }).type(email);
     cy.findByLabelText("Password*").type(
       faker.internet.password({ length: 8 }),
     );
-    cy.findByLabelText("Username*").type(username);
     cy.findByRole("button", { name: "Create account" }).click();
 
     cy.findByText("Username already taken");

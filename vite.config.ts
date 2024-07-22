@@ -23,6 +23,10 @@ export default defineConfig({
       "ramda",
       "@prisma/client",
       "tiny-invariant",
+      "zod",
+      "remix-auth",
+      "remix-auth-form",
+      "bcryptjs",
     ],
   },
   server: {
