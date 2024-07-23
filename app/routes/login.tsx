@@ -36,7 +36,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const session = await getSession(request.headers.get("cookie"));
 
       return json(
-        { error: "Either the email or password are incorrect" },
+        { errors: ["Either the email or password are incorrect"] },
         {
           headers: {
             "Set-Cookie": await commitSession(session),
@@ -50,7 +50,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function LoginPage() {
-  const { error } = useActionData<typeof action>() || {};
+  const response: Response | { errors: string[] } | undefined =
+    useActionData<typeof action>();
+
+  if (response instanceof Response) {
+    throw response;
+  }
+
+  const { errors } = response || {};
 
   return (
     <Container>
@@ -67,7 +74,7 @@ export default function LoginPage() {
           isRequired
           marginTop="1rem"
           marginBottom="1rem"
-          isInvalid={!!error}
+          isInvalid={!!errors}
         >
           <FormLabel>Email</FormLabel>
           <Input type="email" name="email" />
@@ -76,11 +83,11 @@ export default function LoginPage() {
           isRequired
           marginTop="1rem"
           marginBottom="1rem"
-          isInvalid={!!error}
+          isInvalid={!!errors}
         >
           <FormLabel>Password</FormLabel>
           <Input type="password" name="password" />
-          <FormErrorMessage>{error}</FormErrorMessage>
+          <FormErrorMessage>{errors}</FormErrorMessage>
         </FormControl>
         <Button width="100%" type="submit">
           Log in
