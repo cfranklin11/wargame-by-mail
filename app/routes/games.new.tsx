@@ -1,11 +1,10 @@
-import { Container, Input, Button, Textarea } from "@chakra-ui/react";
+import { Container, Input, Textarea } from "@chakra-ui/react";
 import { MetaFunction, ActionFunction, redirect } from "@remix-run/node";
 import { Form } from "@remix-run/react";
 import * as R from "ramda";
 
 import db from "../.server/db";
-import PageHeading from "~/components/PageHeading";
-import FormField from "~/components/FormField";
+import { PageHeading, FormField, Button } from "~/components";
 
 export const meta: MetaFunction = () => {
   return [
@@ -38,9 +37,7 @@ function NewGamePage() {
         <FormField label="Description">
           <Textarea name="description" />
         </FormField>
-        <Button width="100%" type="submit">
-          Create game
-        </Button>
+        <Button type="submit">Create game</Button>
       </Form>
     </Container>
   );

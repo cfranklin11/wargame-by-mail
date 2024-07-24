@@ -1,9 +1,8 @@
-import { Button, Heading } from "@chakra-ui/react";
 import { MetaFunction } from "@remix-run/node";
 import { Link, useOutletContext } from "@remix-run/react";
 
 import type { User } from "~/.server/db";
-import PageHeading from "~/components/PageHeading";
+import { PageHeading, Button } from "~/components";
 
 export const meta: MetaFunction = () => {
   return [
@@ -24,7 +23,7 @@ export default function AccountPage() {
     <>
       <PageHeading>{username}</PageHeading>
       <Link to={"/games/new"}>
-        <Button width="100%">Start a game</Button>
+        <Button>Build an army</Button>
       </Link>
     </>
   );

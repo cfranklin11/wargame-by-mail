@@ -1,10 +1,8 @@
-import { Box, Container, Heading, VStack } from "@chakra-ui/react";
+import { Box, Container, VStack } from "@chakra-ui/react";
 import { MetaFunction } from "@remix-run/node";
 import { ClientOnly } from "remix-utils/client-only";
-import PageHeading from "~/components/PageHeading";
 
-import Spinner from "~/components/Spinner";
-import TableTop from "~/components/Tabletop";
+import { PageHeading, Spinner, TableTop } from "~/components";
 
 const MIN_TABLE_HEIGHT = "55vh";
 

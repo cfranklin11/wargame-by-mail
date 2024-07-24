@@ -1,12 +1,11 @@
-import { Container, Button, Input } from "@chakra-ui/react";
+import { Container, Input } from "@chakra-ui/react";
 import { MetaFunction, json, ActionFunctionArgs } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import { AuthorizationError } from "remix-auth";
 
 import { authenticator } from "~/.server/auth";
 import { commitSession, getSession } from "~/.server/session";
-import FormField from "~/components/FormField";
-import PageHeading from "~/components/PageHeading";
+import { Button, FormField, PageHeading } from "~/components";
 
 export const meta: MetaFunction = () => {
   return [
@@ -20,7 +19,7 @@ export const meta: MetaFunction = () => {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   try {
-    await authenticator.authenticate("form", request, {
+    return await authenticator.authenticate("form", request, {
       throwOnError: true,
       successRedirect: "/account",
     });
@@ -63,9 +62,7 @@ export default function LoginPage() {
         <FormField isRequired label="Password" errors={errors}>
           <Input type="password" name="password" />
         </FormField>
-        <Button width="100%" type="submit">
-          Log in
-        </Button>
+        <Button type="submit">Log in</Button>
       </Form>
     </Container>
   );

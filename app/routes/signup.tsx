@@ -1,4 +1,4 @@
-import { Container, Input, Button } from "@chakra-ui/react";
+import { Container, Input } from "@chakra-ui/react";
 import {
   MetaFunction,
   redirect,
@@ -12,8 +12,7 @@ import { ZodError } from "zod";
 import { authenticator } from "~/.server/auth";
 import db from "~/.server/db";
 import { commitSession, getSession } from "~/.server/session";
-import FormField from "~/components/FormField";
-import PageHeading from "~/components/PageHeading";
+import { Button, FormField, PageHeading } from "~/components";
 
 interface FormErrors {
   email?: string[];
@@ -100,9 +99,7 @@ export default function SignupPage() {
         >
           <Input type="password" name="password" />
         </FormField>
-        <Button width="100%" type="submit">
-          Create account
-        </Button>
+        <Button type="submit">Create account</Button>
       </Form>
     </Container>
   );

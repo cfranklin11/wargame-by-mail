@@ -5,7 +5,6 @@ import {
   Box,
   VStack,
   Select,
-  Button,
   Textarea,
   TableContainer,
   Table,
@@ -27,10 +26,13 @@ import invariant from "tiny-invariant";
 import * as R from "ramda";
 
 import db from "~/.server/db";
-import Spinner from "~/components/Spinner";
-import TableTop from "~/components/Tabletop";
-import PageHeading from "~/components/PageHeading";
-import FormField from "~/components/FormField";
+import {
+  Spinner,
+  TableTop,
+  PageHeading,
+  FormField,
+  Button,
+} from "~/components";
 
 const INCHES_PER_FOOT = 12;
 const BOARD_WIDTH_IN = 6 * INCHES_PER_FOOT;
@@ -159,9 +161,7 @@ export default function NewTerrain() {
             <FormField label="Notes">
               <Textarea name="notes" />
             </FormField>
-            <Button width="100%" type="submit">
-              Add terrain
-            </Button>
+            <Button type="submit">Add terrain</Button>
           </Form>
           {terrains.length ? (
             <>
@@ -199,7 +199,7 @@ export default function NewTerrain() {
             </>
           ) : null}
           <Link to={`/games/${gameId}/play`}>
-            <Button width="100%" marginTop="1rem" marginBottom="1rem">
+            <Button marginTop="1rem" marginBottom="1rem">
               Start game
             </Button>
           </Link>
