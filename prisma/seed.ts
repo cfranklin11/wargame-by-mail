@@ -23,6 +23,9 @@ async function main() {
     await tx.terrainShape.createMany({
       data: [{ name: "rectangle" }, { name: "oval" }],
     });
+    await tx.baseShape.createMany({
+      data: [{ name: "square" }, { name: "round" }],
+    });
   });
 
   const {
