@@ -3,6 +3,7 @@ import { MetaFunction } from "@remix-run/node";
 import { Link, useOutletContext } from "@remix-run/react";
 
 import type { User } from "~/.server/db";
+import PageHeading from "~/components/PageHeading";
 
 export const meta: MetaFunction = () => {
   return [
@@ -21,14 +22,7 @@ export default function AccountPage() {
 
   return (
     <>
-      <Heading
-        as="h1"
-        size={{ base: "lg", lg: "2xl" }}
-        margin="1rem"
-        textAlign="center"
-      >
-        {username}
-      </Heading>
+      <PageHeading>{username}</PageHeading>
       <Link to={"/games/new"}>
         <Button width="100%">Start a game</Button>
       </Link>

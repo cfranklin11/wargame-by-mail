@@ -12,6 +12,7 @@ import { Form } from "@remix-run/react";
 import * as R from "ramda";
 
 import db from "../.server/db";
+import PageHeading from "~/components/PageHeading";
 
 export const meta: MetaFunction = () => {
   return [
@@ -36,14 +37,7 @@ export const action: ActionFunction = async ({ request }) =>
 function NewGamePage() {
   return (
     <Container>
-      <Heading
-        as="h1"
-        size={{ base: "lg", lg: "2xl" }}
-        margin="1rem"
-        textAlign="center"
-      >
-        Set up a new game
-      </Heading>
+      <PageHeading>Set up a new game</PageHeading>
       <Form method="post">
         <FormControl isRequired marginTop="1rem" marginBottom="1rem">
           <FormLabel>Name</FormLabel>

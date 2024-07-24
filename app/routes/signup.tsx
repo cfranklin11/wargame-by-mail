@@ -21,6 +21,7 @@ import { ZodError } from "zod";
 import { authenticator } from "~/.server/auth";
 import db from "~/.server/db";
 import { commitSession, getSession } from "~/.server/session";
+import PageHeading from "~/components/PageHeading";
 
 interface FormErrors {
   email?: string[];
@@ -91,14 +92,7 @@ export default function SignupPage() {
 
   return (
     <Container>
-      <Heading
-        as="h1"
-        size={{ base: "lg", lg: "2xl" }}
-        margin="1rem"
-        textAlign="center"
-      >
-        Sign up
-      </Heading>
+      <PageHeading>Sign up</PageHeading>
       <Form method="post">
         <FormControl
           isRequired

@@ -1,6 +1,7 @@
 import { Box, Container, Heading, VStack } from "@chakra-ui/react";
 import { MetaFunction } from "@remix-run/node";
 import { ClientOnly } from "remix-utils/client-only";
+import PageHeading from "~/components/PageHeading";
 
 import Spinner from "~/components/Spinner";
 import TableTop from "~/components/Tabletop";
@@ -20,14 +21,7 @@ export const meta: MetaFunction = () => {
 export default function Game() {
   return (
     <Container>
-      <Heading
-        as="h1"
-        size={{ base: "lg", lg: "2xl" }}
-        margin="1rem"
-        textAlign="center"
-      >
-        Play Game
-      </Heading>
+      <PageHeading>Play Game</PageHeading>
       <VStack>
         <ClientOnly fallback={<Spinner minHeight={MIN_TABLE_HEIGHT} />}>
           {() => <TableTop minHeight={MIN_TABLE_HEIGHT} />}

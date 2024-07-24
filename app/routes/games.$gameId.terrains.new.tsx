@@ -32,6 +32,7 @@ import * as R from "ramda";
 import db from "~/.server/db";
 import Spinner from "~/components/Spinner";
 import TableTop from "~/components/Tabletop";
+import PageHeading from "~/components/PageHeading";
 
 const INCHES_PER_FOOT = 12;
 const BOARD_WIDTH_IN = 6 * INCHES_PER_FOOT;
@@ -89,14 +90,7 @@ export default function NewTerrain() {
 
   return (
     <Container>
-      <Heading
-        as="h1"
-        size={{ base: "lg", lg: "2xl" }}
-        margin="1rem"
-        textAlign="center"
-      >
-        Add terrain
-      </Heading>
+      <PageHeading>Add terrain</PageHeading>
       <VStack>
         <ClientOnly fallback={<Spinner minHeight={MIN_TABLE_HEIGHT} />}>
           {() => <TableTop minHeight={MIN_TABLE_HEIGHT} />}

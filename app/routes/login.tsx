@@ -13,6 +13,7 @@ import { AuthorizationError } from "remix-auth";
 
 import { authenticator } from "~/.server/auth";
 import { commitSession, getSession } from "~/.server/session";
+import PageHeading from "~/components/PageHeading";
 
 export const meta: MetaFunction = () => {
   return [
@@ -61,14 +62,7 @@ export default function LoginPage() {
 
   return (
     <Container>
-      <Heading
-        as="h1"
-        size={{ base: "lg", lg: "2xl" }}
-        margin="1rem"
-        textAlign="center"
-      >
-        Log in
-      </Heading>
+      <PageHeading>Log in</PageHeading>
       <Form method="post">
         <FormControl
           isRequired
