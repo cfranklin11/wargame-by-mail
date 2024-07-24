@@ -1,9 +1,6 @@
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Container,
-  Heading,
-  FormControl,
-  FormLabel,
   Input,
   Box,
   VStack,
@@ -33,6 +30,7 @@ import db from "~/.server/db";
 import Spinner from "~/components/Spinner";
 import TableTop from "~/components/Tabletop";
 import PageHeading from "~/components/PageHeading";
+import FormField from "~/components/FormField";
 
 const INCHES_PER_FOOT = 12;
 const BOARD_WIDTH_IN = 6 * INCHES_PER_FOOT;
@@ -51,7 +49,6 @@ export const meta: MetaFunction = () => {
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const { gameId } = params;
-
   invariant(gameId, "Expected gameId param");
 
   return json({
@@ -97,12 +94,10 @@ export default function NewTerrain() {
         </ClientOnly>
         <Box marginBottom="1rem" overflow="scroll" maxHeight="34vh">
           <Form method="post" reloadDocument>
-            <FormControl isRequired marginTop="1rem" marginBottom="1rem">
-              <FormLabel>Name</FormLabel>
+            <FormField isRequired label="Name">
               <Input type="text" name="name" />
-            </FormControl>
-            <FormControl isRequired marginTop="1rem" marginBottom="1rem">
-              <FormLabel>Type</FormLabel>
+            </FormField>
+            <FormField isRequired label="Type">
               <Select placeholder="Select terrain type" name="typeId">
                 {terrainTypes.map(({ name, id }) => (
                   <option key={id} value={id}>
@@ -110,9 +105,8 @@ export default function NewTerrain() {
                   </option>
                 ))}
               </Select>
-            </FormControl>
-            <FormControl isRequired marginTop="1rem" marginBottom="1rem">
-              <FormLabel>Shape</FormLabel>
+            </FormField>
+            <FormField isRequired label="Shape">
               <Select placeholder="Select terrain shape" name="shapeId">
                 {terrainShapes.map(({ name, id }) => (
                   <option key={id} value={id}>
@@ -120,58 +114,51 @@ export default function NewTerrain() {
                   </option>
                 ))}
               </Select>
-            </FormControl>
-            <FormControl isRequired marginTop="1rem" marginBottom="1rem">
-              <FormLabel>Width (in)</FormLabel>
+            </FormField>
+            <FormField isRequired label="Width (in)">
               <Input
                 type="number"
-                min={1}
-                step={1}
-                defaultValue={1}
                 name="width"
-              />
-            </FormControl>
-            <FormControl isRequired marginTop="1rem" marginBottom="1rem">
-              <FormLabel>Height (in)</FormLabel>
-              <Input
-                type="number"
                 min={1}
                 step={1}
                 defaultValue={1}
-                name="height"
               />
-            </FormControl>
-            <FormControl isRequired marginTop="1rem" marginBottom="1rem">
-              <FormLabel>Angle (degrees)</FormLabel>
-              <Input type="number" step={1} defaultValue={0} name="angle" />
-            </FormControl>
-            <FormControl isRequired marginTop="1rem" marginBottom="1rem">
-              <FormLabel>Center x-coordinate (in)</FormLabel>
+            </FormField>
+            <FormField isRequired label="Height (in)">
               <Input
                 type="number"
+                name="height"
+                min={1}
+                step={1}
+                defaultValue={1}
+              />
+            </FormField>
+            <FormField isRequired label="Angle (degrees)">
+              <Input type="number" name="angle" step={1} defaultValue={0} />
+            </FormField>
+            <FormField isRequired label="Center x-coordinate (in)">
+              <Input
+                type="number"
+                name="centerX"
                 step={1}
                 defaultValue={0}
                 min={0}
                 max={BOARD_WIDTH_IN}
-                name="centerX"
               />
-            </FormControl>
-            <FormControl isRequired marginTop="1rem" marginBottom="1rem">
-              <FormLabel>Center y-coordinate (in)</FormLabel>
+            </FormField>
+            <FormField isRequired label="Center y-coordinate (in)">
               <Input
                 type="number"
+                name="centerY"
                 step={1}
                 defaultValue={0}
                 min={0}
                 max={BOARD_HEIGHT_IN}
-                name="centerY"
               />
-            </FormControl>
-            <FormControl marginTop="1rem" marginBottom="1rem">
-              <FormLabel>Notes</FormLabel>
+            </FormField>
+            <FormField label="Notes">
               <Textarea name="notes" />
-            </FormControl>
-            <Input name="gameId" type="hidden" value={gameId} />
+            </FormField>
             <Button width="100%" type="submit">
               Add terrain
             </Button>

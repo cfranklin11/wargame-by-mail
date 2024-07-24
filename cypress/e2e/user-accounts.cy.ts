@@ -55,7 +55,7 @@ describe("User accounts", () => {
         "prettysurenotarealpasswordkthnxbyebbq",
       );
       cy.findByRole("button", { name: "Log in" }).click();
-      cy.findByText("Either the email or password are incorrect");
+      cy.findAllByText("Either the email or password are incorrect");
       cy.findByLabelText("Password*").clear().type(password);
       cy.findByRole("button", { name: "Log in" }).click();
 

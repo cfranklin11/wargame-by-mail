@@ -1,13 +1,4 @@
-import {
-  Container,
-  Heading,
-  FormControl,
-  FormLabel,
-  Input,
-  Button,
-  FormHelperText,
-  FormErrorMessage,
-} from "@chakra-ui/react";
+import { Container, Input, Button } from "@chakra-ui/react";
 import {
   MetaFunction,
   redirect,
@@ -21,6 +12,7 @@ import { ZodError } from "zod";
 import { authenticator } from "~/.server/auth";
 import db from "~/.server/db";
 import { commitSession, getSession } from "~/.server/session";
+import FormField from "~/components/FormField";
 import PageHeading from "~/components/PageHeading";
 
 interface FormErrors {
@@ -94,45 +86,20 @@ export default function SignupPage() {
     <Container>
       <PageHeading>Sign up</PageHeading>
       <Form method="post">
-        <FormControl
-          isRequired
-          marginTop="1rem"
-          marginBottom="1rem"
-          isInvalid={!!errors?.username}
-        >
-          <FormLabel>Username</FormLabel>
+        <FormField isRequired label="Username" errors={errors?.username}>
           <Input type="text" name="username" />
-          {errors?.username?.map((message) => (
-            <FormErrorMessage key={message}>{message}</FormErrorMessage>
-          ))}
-        </FormControl>
-        <FormControl
-          isRequired
-          marginTop="1rem"
-          marginBottom="1rem"
-          isInvalid={!!errors?.email}
-        >
-          <FormLabel>Email</FormLabel>
+        </FormField>
+        <FormField isRequired label="Email" errors={errors?.email}>
           <Input type="email" name="email" />
-          {errors?.email?.map((message) => (
-            <FormErrorMessage key={message}>{message}</FormErrorMessage>
-          ))}
-        </FormControl>
-        <FormControl
+        </FormField>
+        <FormField
           isRequired
-          marginTop="1rem"
-          marginBottom="1rem"
-          isInvalid={!!errors?.password}
+          label="Password"
+          helperText="Must have at least 8 characters"
+          errors={errors?.password}
         >
-          <FormLabel>Password</FormLabel>
           <Input type="password" name="password" />
-          {errors?.password?.map((message) => (
-            <FormErrorMessage key={message}>{message}</FormErrorMessage>
-          )) || (
-            <FormHelperText>Must have at least 8 characters</FormHelperText>
-          )}
-        </FormControl>
-        <Input type="hidden" name="signup" value="true" />
+        </FormField>
         <Button width="100%" type="submit">
           Create account
         </Button>

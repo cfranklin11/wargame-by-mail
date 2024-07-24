@@ -1,18 +1,11 @@
-import {
-  Container,
-  Heading,
-  FormControl,
-  FormLabel,
-  Input,
-  Button,
-  FormErrorMessage,
-} from "@chakra-ui/react";
+import { Container, Button, Input } from "@chakra-ui/react";
 import { MetaFunction, json, ActionFunctionArgs } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import { AuthorizationError } from "remix-auth";
 
 import { authenticator } from "~/.server/auth";
 import { commitSession, getSession } from "~/.server/session";
+import FormField from "~/components/FormField";
 import PageHeading from "~/components/PageHeading";
 
 export const meta: MetaFunction = () => {
@@ -64,25 +57,12 @@ export default function LoginPage() {
     <Container>
       <PageHeading>Log in</PageHeading>
       <Form method="post">
-        <FormControl
-          isRequired
-          marginTop="1rem"
-          marginBottom="1rem"
-          isInvalid={!!errors}
-        >
-          <FormLabel>Email</FormLabel>
+        <FormField isRequired label="Email" errors={errors}>
           <Input type="email" name="email" />
-        </FormControl>
-        <FormControl
-          isRequired
-          marginTop="1rem"
-          marginBottom="1rem"
-          isInvalid={!!errors}
-        >
-          <FormLabel>Password</FormLabel>
+        </FormField>
+        <FormField isRequired label="Password" errors={errors}>
           <Input type="password" name="password" />
-          <FormErrorMessage>{errors}</FormErrorMessage>
-        </FormControl>
+        </FormField>
         <Button width="100%" type="submit">
           Log in
         </Button>

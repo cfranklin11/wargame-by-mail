@@ -1,18 +1,11 @@
-import {
-  Container,
-  Heading,
-  FormControl,
-  FormLabel,
-  Input,
-  Button,
-  Textarea,
-} from "@chakra-ui/react";
+import { Container, Input, Button, Textarea } from "@chakra-ui/react";
 import { MetaFunction, ActionFunction, redirect } from "@remix-run/node";
 import { Form } from "@remix-run/react";
 import * as R from "ramda";
 
 import db from "../.server/db";
 import PageHeading from "~/components/PageHeading";
+import FormField from "~/components/FormField";
 
 export const meta: MetaFunction = () => {
   return [
@@ -39,14 +32,12 @@ function NewGamePage() {
     <Container>
       <PageHeading>Set up a new game</PageHeading>
       <Form method="post">
-        <FormControl isRequired marginTop="1rem" marginBottom="1rem">
-          <FormLabel>Name</FormLabel>
+        <FormField isRequired label="Name">
           <Input type="text" name="name" />
-        </FormControl>
-        <FormControl marginTop="1rem" marginBottom="1rem">
-          <FormLabel>Description</FormLabel>
+        </FormField>
+        <FormField label="Description">
           <Textarea name="description" />
-        </FormControl>
+        </FormField>
         <Button width="100%" type="submit">
           Create game
         </Button>
