@@ -2,7 +2,15 @@ import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 
-export type { Game, Terrain, User, Army } from "@prisma/client";
+export type {
+  Game,
+  Terrain,
+  User,
+  Army,
+  BaseShape,
+  Unit,
+  Miniature,
+} from "@prisma/client";
 
 // Basic client for use in validations
 const prisma = new PrismaClient();

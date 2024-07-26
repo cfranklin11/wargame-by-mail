@@ -92,8 +92,8 @@ model Unit {
   gear        String
   notes       String
   color       String
-  baseLength  String      @map("base_length")
-  baseWidth   String      @map("base_width")
+  baseLength  Int         @map("base_length")
+  baseWidth   Int         @map("base_width")
   baseShape   BaseShape   @relation(fields: [baseShapeId], references: [id])
   baseShapeId Int         @map("base_shape_id")
   army        Army        @relation(fields: [armyId], references: [id])
@@ -121,6 +121,7 @@ model Miniature {
   stats     String
   gear      String
   notes     String
+  count     Int
   unit      Unit     @relation(fields: [unitId], references: [id])
   unitId    Int      @map("unit_id")
 
