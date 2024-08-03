@@ -12,6 +12,10 @@ export type {
   Miniature,
 } from "@prisma/client";
 
+const SHORT_TEXT_LIMIT = 255;
+const LONG_TEXT_LIMIT = SHORT_TEXT_LIMIT * 4;
+const MIN_PASSWORD_LENGTH = 8;
+
 // Basic client for use in validations
 const prisma = new PrismaClient();
 
@@ -19,7 +23,7 @@ const UserCreateInput = z.object({
   email: z
     .string()
     .email()
-    .max(255)
+    .max(SHORT_TEXT_LIMIT)
     .refine(
       async (email) => {
         const user = await prisma.user.findUnique({ where: { email } });
@@ -27,11 +31,11 @@ const UserCreateInput = z.object({
       },
       { message: "An account for this email already exists" },
     ),
-  password: z.string().min(8).max(255),
+  password: z.string().min(MIN_PASSWORD_LENGTH).max(SHORT_TEXT_LIMIT),
   username: z
     .string()
     .min(1)
-    .max(255)
+    .max(SHORT_TEXT_LIMIT)
     .refine(
       async (username) => {
         const user = await prisma.user.findUnique({ where: { username } });
@@ -39,6 +43,13 @@ const UserCreateInput = z.object({
       },
       { message: "Username already taken" },
     ),
+});
+
+const ArmyCreateInput = z.object({
+  name: z.string().min(1).max(SHORT_TEXT_LIMIT),
+  gameSystem: z.string().min(1).max(SHORT_TEXT_LIMIT),
+  faction: z.string().min(1).max(SHORT_TEXT_LIMIT),
+  description: z.string().max(LONG_TEXT_LIMIT),
 });
 
 const db = new PrismaClient().$extends({
@@ -66,11 +77,24 @@ const db = new PrismaClient().$extends({
             },
           ),
         );
-
         return query({
           ...args,
           data,
         });
+      },
+    },
+    army: {
+      create: async ({ args, query }) => {
+        await ArmyCreateInput.parseAsync(args.data);
+        return query(args);
+      },
+      createMany: async ({ args, query }) => {
+        await Promise.all(
+          (Array.isArray(args.data) ? args.data : [args.data]).map((data) =>
+            ArmyCreateInput.parseAsync(data),
+          ),
+        );
+        return query(args);
       },
     },
   },

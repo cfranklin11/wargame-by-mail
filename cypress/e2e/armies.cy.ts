@@ -26,6 +26,11 @@ describe("Armies", () => {
     );
     cy.findByRole("button", { name: "Save" }).click();
 
+    // Check serverside validations
+    cy.findByText("String must contain at most 255 character(s)");
+    cy.findByRole("textbox", { name: "Name" }).clear().type(oldArmyName);
+    cy.findByRole("button", { name: "Save" }).click();
+
     cy.location("pathname").should("equal", "/armies/new");
     cy.findByRole("textbox", { name: "Name" })
       .should("have.value", oldArmyName)
