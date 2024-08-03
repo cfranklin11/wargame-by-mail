@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import isHexColor from "validator/lib/isHexColor";
+import { wrap } from "~/utils/array";
 
 export type {
   Game,
@@ -88,15 +89,13 @@ const db = new PrismaClient().$extends({
       },
       createMany: async ({ args, query }) => {
         const data = await Promise.all(
-          (Array.isArray(args.data) ? args.data : [args.data]).map(
-            async (userData) => {
-              await UserCreateInput.parseAsync(userData);
-              const password = userData.password;
-              const salt = await bcrypt.genSalt(10);
-              const hashedPassword = await bcrypt.hash(password, salt);
-              return { ...userData, password: hashedPassword };
-            },
-          ),
+          wrap(args.data).map(async (userData) => {
+            await UserCreateInput.parseAsync(userData);
+            const password = userData.password;
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
+            return { ...userData, password: hashedPassword };
+          }),
         );
         return query({
           ...args,
@@ -111,9 +110,7 @@ const db = new PrismaClient().$extends({
       },
       createMany: async ({ args, query }) => {
         await Promise.all(
-          (Array.isArray(args.data) ? args.data : [args.data]).map((data) =>
-            ArmyCreateInput.parseAsync(data),
-          ),
+          wrap(args.data).map((data) => ArmyCreateInput.parseAsync(data)),
         );
         return query(args);
       },
@@ -125,9 +122,7 @@ const db = new PrismaClient().$extends({
       },
       createMany: async ({ args, query }) => {
         await Promise.all(
-          (Array.isArray(args.data) ? args.data : [args.data]).map((data) =>
-            UnitCreateInput.parseAsync(data),
-          ),
+          wrap(args.data).map((data) => UnitCreateInput.parseAsync(data)),
         );
         return query(args);
       },
@@ -139,9 +134,7 @@ const db = new PrismaClient().$extends({
       },
       createMany: async ({ args, query }) => {
         await Promise.all(
-          (Array.isArray(args.data) ? args.data : [args.data]).map((data) =>
-            MiniatureCreateInput.parseAsync(data),
-          ),
+          wrap(args.data).map((data) => MiniatureCreateInput.parseAsync(data)),
         );
         return query(args);
       },
