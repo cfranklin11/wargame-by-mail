@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
+import isHexColor from "validator/lib/isHexColor";
 
 export type {
   Game,
@@ -15,41 +16,53 @@ export type {
 const SHORT_TEXT_LIMIT = 255;
 const LONG_TEXT_LIMIT = SHORT_TEXT_LIMIT * 4;
 const MIN_PASSWORD_LENGTH = 8;
+const MIN_REQUIRED_TEXT = 1;
+
+const MIN_REQUIRED_NUMBER = 1;
 
 // Basic client for use in validations
 const prisma = new PrismaClient();
 
+const shortTextValidations = z
+  .string()
+  .min(MIN_REQUIRED_TEXT)
+  .max(SHORT_TEXT_LIMIT);
+
+const longTextValidations = z.string().max(LONG_TEXT_LIMIT);
+
 const UserCreateInput = z.object({
-  email: z
-    .string()
-    .email()
-    .max(SHORT_TEXT_LIMIT)
-    .refine(
-      async (email) => {
-        const user = await prisma.user.findUnique({ where: { email } });
-        return !user;
-      },
-      { message: "An account for this email already exists" },
-    ),
+  email: shortTextValidations.email().refine(
+    async (email) => {
+      const user = await prisma.user.findUnique({ where: { email } });
+      return !user;
+    },
+    { message: "An account for this email already exists" },
+  ),
   password: z.string().min(MIN_PASSWORD_LENGTH).max(SHORT_TEXT_LIMIT),
-  username: z
-    .string()
-    .min(1)
-    .max(SHORT_TEXT_LIMIT)
-    .refine(
-      async (username) => {
-        const user = await prisma.user.findUnique({ where: { username } });
-        return !user;
-      },
-      { message: "Username already taken" },
-    ),
+  username: shortTextValidations.refine(
+    async (username) => {
+      const user = await prisma.user.findUnique({ where: { username } });
+      return !user;
+    },
+    { message: "Username already taken" },
+  ),
 });
 
 const ArmyCreateInput = z.object({
-  name: z.string().min(1).max(SHORT_TEXT_LIMIT),
-  gameSystem: z.string().min(1).max(SHORT_TEXT_LIMIT),
-  faction: z.string().min(1).max(SHORT_TEXT_LIMIT),
-  description: z.string().max(LONG_TEXT_LIMIT),
+  name: shortTextValidations,
+  gameSystem: shortTextValidations,
+  faction: shortTextValidations,
+  description: longTextValidations,
+});
+
+const UnitCreateInput = z.object({
+  name: shortTextValidations,
+  stats: longTextValidations,
+  gear: longTextValidations,
+  notes: longTextValidations,
+  baseLength: z.number().int().min(MIN_REQUIRED_NUMBER),
+  baseWidth: z.number().int().min(MIN_REQUIRED_NUMBER),
+  color: z.string().refine(isHexColor, "Color must be a hex color code."),
 });
 
 const db = new PrismaClient().$extends({
@@ -92,6 +105,20 @@ const db = new PrismaClient().$extends({
         await Promise.all(
           (Array.isArray(args.data) ? args.data : [args.data]).map((data) =>
             ArmyCreateInput.parseAsync(data),
+          ),
+        );
+        return query(args);
+      },
+    },
+    unit: {
+      create: async ({ args, query }) => {
+        await UnitCreateInput.parseAsync(args.data);
+        return query(args);
+      },
+      createMany: async ({ args, query }) => {
+        await Promise.all(
+          (Array.isArray(args.data) ? args.data : [args.data]).map((data) =>
+            UnitCreateInput.parseAsync(data),
           ),
         );
         return query(args);
