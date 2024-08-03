@@ -69,9 +69,6 @@ export default function NewArmyPage() {
         <FormField label="Description">
           <Textarea name="description" defaultValue={army?.description} />
         </FormField>
-        <Link to="/account">
-          <Button>Back</Button>
-        </Link>
         <Button type="submit" value="save" name="submit">
           Save
         </Button>
@@ -79,6 +76,9 @@ export default function NewArmyPage() {
           Add units
         </Button>
       </Form>
+      <Link to="/account">
+        <Button>Back to account</Button>
+      </Link>
     </>
   );
 }

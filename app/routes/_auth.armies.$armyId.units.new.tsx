@@ -123,9 +123,6 @@ export default function NewUnitPage() {
           <Input type="color" name="color" />
         </FormField>
         <Input type="hidden" name="armyId" value={army.id} />
-        <Link to={`/armies/${army.id}`}>
-          <Button>Back</Button>
-        </Link>
         <Button type="submit" value="save" name="submit">
           Save
         </Button>
@@ -133,6 +130,9 @@ export default function NewUnitPage() {
           Add models
         </Button>
       </Form>
+      <Link to={"/armies/new"}>
+        <Button>Back to army</Button>
+      </Link>
     </>
   );
 }
