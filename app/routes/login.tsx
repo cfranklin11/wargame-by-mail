@@ -1,18 +1,11 @@
-import {
-  Container,
-  Heading,
-  FormControl,
-  FormLabel,
-  Input,
-  Button,
-  FormErrorMessage,
-} from "@chakra-ui/react";
+import { Container, Input } from "@chakra-ui/react";
 import { MetaFunction, json, ActionFunctionArgs } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import { AuthorizationError } from "remix-auth";
 
 import { authenticator } from "~/.server/auth";
 import { commitSession, getSession } from "~/.server/session";
+import { Button, FormField, PageHeading } from "~/components";
 
 export const meta: MetaFunction = () => {
   return [
@@ -26,7 +19,7 @@ export const meta: MetaFunction = () => {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   try {
-    await authenticator.authenticate("form", request, {
+    return await authenticator.authenticate("form", request, {
       throwOnError: true,
       successRedirect: "/account",
     });
@@ -36,7 +29,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const session = await getSession(request.headers.get("cookie"));
 
       return json(
-        { error: "Either the email or password are incorrect" },
+        { errors: ["Either the email or password are incorrect"] },
         {
           headers: {
             "Set-Cookie": await commitSession(session),
@@ -50,41 +43,26 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function LoginPage() {
-  const { error } = useActionData<typeof action>() || {};
+  const response: Response | { errors: string[] } | undefined =
+    useActionData<typeof action>();
+
+  if (response instanceof Response) {
+    throw response;
+  }
+
+  const { errors } = response || {};
 
   return (
     <Container>
-      <Heading
-        as="h1"
-        size={{ base: "lg", lg: "2xl" }}
-        margin="1rem"
-        textAlign="center"
-      >
-        Log in
-      </Heading>
+      <PageHeading>Log in</PageHeading>
       <Form method="post">
-        <FormControl
-          isRequired
-          marginTop="1rem"
-          marginBottom="1rem"
-          isInvalid={!!error}
-        >
-          <FormLabel>Email</FormLabel>
+        <FormField isRequired label="Email" errors={errors}>
           <Input type="email" name="email" />
-        </FormControl>
-        <FormControl
-          isRequired
-          marginTop="1rem"
-          marginBottom="1rem"
-          isInvalid={!!error}
-        >
-          <FormLabel>Password</FormLabel>
+        </FormField>
+        <FormField isRequired label="Password" errors={errors}>
           <Input type="password" name="password" />
-          <FormErrorMessage>{error}</FormErrorMessage>
-        </FormControl>
-        <Button width="100%" type="submit">
-          Log in
-        </Button>
+        </FormField>
+        <Button type="submit">Log in</Button>
       </Form>
     </Container>
   );

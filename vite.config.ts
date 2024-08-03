@@ -27,6 +27,7 @@ export default defineConfig({
       "remix-auth",
       "remix-auth-form",
       "bcryptjs",
+      "validator/lib/isHexColor",
     ],
   },
   server: {

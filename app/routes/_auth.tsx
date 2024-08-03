@@ -1,9 +1,7 @@
 import {
   Avatar,
   Box,
-  Button,
   Container,
-  Heading,
   HStack,
   Menu,
   MenuButton,
@@ -11,7 +9,7 @@ import {
   MenuList,
 } from "@chakra-ui/react";
 import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { Form, Link, useLoaderData } from "@remix-run/react";
+import { Form, Link, Outlet, useLoaderData } from "@remix-run/react";
 
 import { authenticator } from "~/.server/auth";
 
@@ -23,10 +21,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return json({ user });
 }
 
-export default function AccountPage() {
-  const {
-    user: { username, id },
-  } = useLoaderData<typeof loader>();
+export default function AuthenticatedPage() {
+  const { user } = useLoaderData<typeof loader>();
 
   return (
     <>
@@ -34,11 +30,11 @@ export default function AccountPage() {
         <HStack justifyContent="end">
           <Menu>
             <MenuButton margin="1rem">
-              <Avatar name={username}></Avatar>
+              <Avatar name={user.username} />
             </MenuButton>
             <MenuList>
               <MenuItem>
-                <Link to={`/users/${id}`}>Account page</Link>
+                <Link to={`/users/${user.id}`}>Account page</Link>
               </MenuItem>
               <Form method="post" action="/logout">
                 <MenuItem type="submit">Log out</MenuItem>
@@ -48,17 +44,7 @@ export default function AccountPage() {
         </HStack>
       </Box>
       <Container>
-        <Heading
-          as="h1"
-          size={{ base: "lg", lg: "2xl" }}
-          margin="1rem"
-          textAlign="center"
-        >
-          {username}
-        </Heading>
-        <Link to={"/games/new"}>
-          <Button width="100%">Start a game</Button>
-        </Link>
+        <Outlet context={{ user }} />
       </Container>
     </>
   );

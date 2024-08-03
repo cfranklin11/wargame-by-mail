@@ -1,13 +1,7 @@
-import {
-  Heading,
-  Text,
-  Container,
-  Box,
-  VStack,
-  Button,
-} from "@chakra-ui/react";
+import { Heading, Text, Container, Box, VStack } from "@chakra-ui/react";
 import type { MetaFunction } from "@remix-run/node";
 import { Link } from "@remix-run/react";
+import { Button } from "~/components";
 
 export const meta: MetaFunction = () => {
   return [
@@ -35,12 +29,10 @@ export default function Index() {
         </Box>
         <Box width="100%">
           <Link to={"/login"}>
-            <Button width="100%" marginBottom="1rem">
-              Log in
-            </Button>
+            <Button marginBottom="1rem">Log in</Button>
           </Link>
           <Link to={"/signup"}>
-            <Button width="100%">Sign up</Button>
+            <Button>Sign up</Button>
           </Link>
         </Box>
       </VStack>

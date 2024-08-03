@@ -1,36 +1,76 @@
 import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
+import isHexColor from "validator/lib/isHexColor";
 
-export type { Game, Terrain, User } from "@prisma/client";
+export type {
+  Game,
+  Terrain,
+  User,
+  Army,
+  BaseShape,
+  Unit,
+  Miniature,
+} from "@prisma/client";
+
+const SHORT_TEXT_LIMIT = 255;
+const LONG_TEXT_LIMIT = SHORT_TEXT_LIMIT * 4;
+const MIN_PASSWORD_LENGTH = 8;
+const MIN_REQUIRED_TEXT = 1;
+
+const MIN_REQUIRED_NUMBER = 1;
 
 // Basic client for use in validations
 const prisma = new PrismaClient();
 
+const shortTextValidations = z
+  .string()
+  .min(MIN_REQUIRED_TEXT)
+  .max(SHORT_TEXT_LIMIT);
+
+const longTextValidations = z.string().max(LONG_TEXT_LIMIT);
+
 const UserCreateInput = z.object({
-  email: z
-    .string()
-    .email()
-    .max(255)
-    .refine(
-      async (email) => {
-        const user = await prisma.user.findUnique({ where: { email } });
-        return !user;
-      },
-      { message: "An account for this email already exists" },
-    ),
-  password: z.string().min(8).max(255),
-  username: z
-    .string()
-    .min(1)
-    .max(255)
-    .refine(
-      async (username) => {
-        const user = await prisma.user.findUnique({ where: { username } });
-        return !user;
-      },
-      { message: "Username already taken" },
-    ),
+  email: shortTextValidations.email().refine(
+    async (email) => {
+      const user = await prisma.user.findUnique({ where: { email } });
+      return !user;
+    },
+    { message: "An account for this email already exists" },
+  ),
+  password: z.string().min(MIN_PASSWORD_LENGTH).max(SHORT_TEXT_LIMIT),
+  username: shortTextValidations.refine(
+    async (username) => {
+      const user = await prisma.user.findUnique({ where: { username } });
+      return !user;
+    },
+    { message: "Username already taken" },
+  ),
+});
+
+const ArmyCreateInput = z.object({
+  name: shortTextValidations,
+  gameSystem: shortTextValidations,
+  faction: shortTextValidations,
+  description: longTextValidations,
+});
+
+const UnitCreateInput = z.object({
+  name: shortTextValidations,
+  stats: longTextValidations,
+  gear: longTextValidations,
+  notes: longTextValidations,
+  baseLength: z.number().int().min(MIN_REQUIRED_NUMBER),
+  baseWidth: z.number().int().min(MIN_REQUIRED_NUMBER),
+  color: z.string().refine(isHexColor, "Color must be a hex color code."),
+});
+
+const MiniatureCreateInput = z.object({
+  name: shortTextValidations,
+  stats: longTextValidations,
+  gear: longTextValidations,
+  notes: longTextValidations,
+  count: z.number().int().min(MIN_REQUIRED_NUMBER),
 });
 
 const db = new PrismaClient().$extends({
@@ -58,11 +98,52 @@ const db = new PrismaClient().$extends({
             },
           ),
         );
-
         return query({
           ...args,
           data,
         });
+      },
+    },
+    army: {
+      create: async ({ args, query }) => {
+        await ArmyCreateInput.parseAsync(args.data);
+        return query(args);
+      },
+      createMany: async ({ args, query }) => {
+        await Promise.all(
+          (Array.isArray(args.data) ? args.data : [args.data]).map((data) =>
+            ArmyCreateInput.parseAsync(data),
+          ),
+        );
+        return query(args);
+      },
+    },
+    unit: {
+      create: async ({ args, query }) => {
+        await UnitCreateInput.parseAsync(args.data);
+        return query(args);
+      },
+      createMany: async ({ args, query }) => {
+        await Promise.all(
+          (Array.isArray(args.data) ? args.data : [args.data]).map((data) =>
+            UnitCreateInput.parseAsync(data),
+          ),
+        );
+        return query(args);
+      },
+    },
+    miniature: {
+      create: async ({ args, query }) => {
+        await MiniatureCreateInput.parseAsync(args.data);
+        return query(args);
+      },
+      createMany: async ({ args, query }) => {
+        await Promise.all(
+          (Array.isArray(args.data) ? args.data : [args.data]).map((data) =>
+            MiniatureCreateInput.parseAsync(data),
+          ),
+        );
+        return query(args);
       },
     },
   },

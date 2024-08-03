@@ -69,3 +69,61 @@ model User {
 
   @@map("users")
 }
+
+model Army {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  name        String
+  gameSystem  String   @map("game_system")
+  faction     String
+  description String
+  units       Unit[]
+
+  @@map("armies")
+}
+
+model Unit {
+  id          Int         @id @default(autoincrement())
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  name        String
+  stats       String
+  gear        String
+  notes       String
+  color       String
+  baseLength  Int         @map("base_length")
+  baseWidth   Int         @map("base_width")
+  baseShape   BaseShape   @relation(fields: [baseShapeId], references: [id])
+  baseShapeId Int         @map("base_shape_id")
+  army        Army        @relation(fields: [armyId], references: [id])
+  armyId      Int         @map("army_id")
+  miniatures  Miniature[]
+
+  @@map("units")
+}
+
+model BaseShape {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  name      String
+  units     Unit[]
+
+  @@map("base_shapes")
+}
+
+model Miniature {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  name      String
+  stats     String
+  gear      String
+  notes     String
+  count     Int
+  unit      Unit     @relation(fields: [unitId], references: [id])
+  unitId    Int      @map("unit_id")
+
+  @@map("miniatures")
+}
