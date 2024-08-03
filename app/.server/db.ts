@@ -65,6 +65,14 @@ const UnitCreateInput = z.object({
   color: z.string().refine(isHexColor, "Color must be a hex color code."),
 });
 
+const MiniatureCreateInput = z.object({
+  name: shortTextValidations,
+  stats: longTextValidations,
+  gear: longTextValidations,
+  notes: longTextValidations,
+  count: z.number().int().min(MIN_REQUIRED_NUMBER),
+});
+
 const db = new PrismaClient().$extends({
   query: {
     user: {
@@ -119,6 +127,20 @@ const db = new PrismaClient().$extends({
         await Promise.all(
           (Array.isArray(args.data) ? args.data : [args.data]).map((data) =>
             UnitCreateInput.parseAsync(data),
+          ),
+        );
+        return query(args);
+      },
+    },
+    miniature: {
+      create: async ({ args, query }) => {
+        await MiniatureCreateInput.parseAsync(args.data);
+        return query(args);
+      },
+      createMany: async ({ args, query }) => {
+        await Promise.all(
+          (Array.isArray(args.data) ? args.data : [args.data]).map((data) =>
+            MiniatureCreateInput.parseAsync(data),
           ),
         );
         return query(args);
