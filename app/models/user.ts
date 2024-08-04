@@ -1,6 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 
+export type { User } from "@prisma/client";
+
 const SHORT_TEXT_LIMIT = 255;
 const MIN_REQUIRED_TEXT = 1;
 const MIN_PASSWORD_LENGTH = 8;

@@ -7,15 +7,7 @@ import { validate as validateUnit } from "~/models/unit";
 import { validate as validateMiniature } from "~/models/miniature";
 import { validate as validateUser } from "~/models/user";
 
-export type {
-  Game,
-  Terrain,
-  User,
-  Army,
-  BaseShape,
-  Unit,
-  Miniature,
-} from "@prisma/client";
+export type { Game, Terrain, BaseShape } from "@prisma/client";
 
 // Basic client for use in validations
 const prisma = new PrismaClient();

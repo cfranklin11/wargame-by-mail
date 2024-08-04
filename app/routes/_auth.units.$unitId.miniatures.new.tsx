@@ -9,11 +9,13 @@ import {
 } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import * as R from "ramda";
-import db, { Miniature } from "~/.server/db";
-import { Button, FormField, PageHeading } from "~/components";
 import { Input, Textarea } from "@chakra-ui/react";
 import { ZodError } from "zod";
+
+import db from "~/.server/db";
+import { Button, FormField, PageHeading } from "~/components";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
+import { Miniature } from "~/models/miniature";
 
 type FormErrors = Partial<Record<keyof Miniature, string[]>>;
 const EMPTY_FORM_ERRORS: FormErrors = {};

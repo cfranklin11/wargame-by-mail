@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export type { Miniature } from "@prisma/client";
+
 const SHORT_TEXT_LIMIT = 255;
 const LONG_TEXT_LIMIT = SHORT_TEXT_LIMIT * 4;
 const MIN_REQUIRED_TEXT = 1;

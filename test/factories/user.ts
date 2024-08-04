@@ -1,7 +1,7 @@
 import { Factory } from "fishery";
 import { faker } from "@faker-js/faker";
 
-import { User } from "../../app/.server/db";
+import { User } from "../../app/models/user";
 
 export const userInputFactory = Factory.define<
   Omit<User, "id" | "updatedAt" | "createdAt">

@@ -1,6 +1,6 @@
 import { Factory } from "fishery";
 
-import { Miniature } from "../../app/.server/db";
+import { Miniature } from "../../app/models/miniature";
 import { faker } from "@faker-js/faker";
 
 export const miniatureInputFactory = Factory.define<

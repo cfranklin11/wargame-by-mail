@@ -10,11 +10,14 @@ import {
 } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import * as R from "ramda";
-import db, { Army, BaseShape, Unit } from "~/.server/db";
+import { ZodError } from "zod";
+
+import db, { BaseShape } from "~/.server/db";
 import { Button, FormField, PageHeading } from "~/components";
 import { Input, Select, Textarea } from "@chakra-ui/react";
-import { ZodError } from "zod";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
+import { Unit } from "~/models/unit";
+import { Army } from "~/models/army";
 
 type FormErrors = Partial<Record<keyof Unit, string[]>>;
 
