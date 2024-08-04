@@ -9,10 +9,13 @@ import {
 } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import * as R from "ramda";
-import db, { Miniature } from "~/.server/db";
-import { Button, FormField, PageHeading } from "~/components";
 import { Input, Textarea } from "@chakra-ui/react";
 import { ZodError } from "zod";
+
+import db from "~/.server/db";
+import { Button, FormField, PageHeading } from "~/components";
+import { convertToModelData, formatValidationErrors } from "~/utils/form";
+import { Miniature } from "~/models/miniature";
 
 type FormErrors = Partial<Record<keyof Miniature, string[]>>;
 const EMPTY_FORM_ERRORS: FormErrors = {};
@@ -46,30 +49,14 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     await R.pipe(
       R.invoker(0, "formData"),
-      R.andThen(R.invoker(0, "entries")),
-      R.andThen(
-        R.map(([key, value]) => [
-          key,
-          Number.isNaN(parseInt(value)) ? value : parseInt(value),
-        ]),
-      ),
-      R.andThen(Object.fromEntries),
+      R.andThen(convertToModelData),
       R.andThen(R.objOf("data")<Miniature>),
       R.andThen(db.miniature.create),
     )(request);
     return json({ errors: EMPTY_FORM_ERRORS });
   } catch (error) {
     if (error instanceof ZodError) {
-      const errors = error.issues.reduce((aggValue, currValue) => {
-        const key = currValue.path[0] as keyof FormErrors;
-        invariant(typeof key === "string");
-
-        return {
-          ...aggValue,
-          [key]: [...(aggValue[key] || []), currValue.message],
-        };
-      }, EMPTY_FORM_ERRORS);
-      return json({ errors });
+      return R.pipe(formatValidationErrors, R.objOf("errors"), json)(error);
     }
 
     throw error;

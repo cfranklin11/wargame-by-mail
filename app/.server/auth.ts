@@ -4,7 +4,8 @@ import invariant from "tiny-invariant";
 import bcrypt from "bcryptjs";
 
 import { sessionStorage } from "./session";
-import db, { User } from "./db";
+import db from "./db";
+import { User } from "../models/user";
 
 export const authenticator = new Authenticator<User>(sessionStorage);
 

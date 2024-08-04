@@ -1,7 +1,7 @@
 import { MetaFunction } from "@remix-run/node";
 import { Link, useOutletContext } from "@remix-run/react";
 
-import type { User } from "~/.server/db";
+import type { User } from "~/models/user";
 import { PageHeading, Button } from "~/components";
 
 export const meta: MetaFunction = () => {

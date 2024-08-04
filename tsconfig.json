@@ -1,8 +1,14 @@
 {
   "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["cypress.config.ts", "cypress"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
-    "types": ["@remix-run/node", "vite/client", "@testing-library/cypress"],
+    "types": [
+      "@remix-run/node",
+      "vite/client",
+      "@testing-library/cypress",
+      "jest"
+    ],
     "isolatedModules": true,
     "esModuleInterop": true,
     "jsx": "react-jsx",

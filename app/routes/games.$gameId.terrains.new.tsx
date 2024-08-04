@@ -33,6 +33,7 @@ import {
   FormField,
   Button,
 } from "~/components";
+import { convertToModelData } from "~/utils/form";
 
 const INCHES_PER_FOOT = 12;
 const BOARD_WIDTH_IN = 6 * INCHES_PER_FOOT;
@@ -65,14 +66,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 export const action = async ({ request }: ActionFunctionArgs) => {
   await R.pipe(
     R.invoker(0, "formData"),
-    R.andThen(R.invoker(0, "entries")),
-    R.andThen(
-      R.map(([key, value]) => [
-        key,
-        Number.isNaN(parseInt(value)) ? value : parseInt(value),
-      ]),
-    ),
-    R.andThen(Object.fromEntries),
+    R.andThen(convertToModelData),
     R.andThen(R.objOf("data")),
     R.andThen(db.terrain.create),
   )(request);

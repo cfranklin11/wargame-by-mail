@@ -1,6 +1,7 @@
 import { Heading, Text, Container, Box, VStack } from "@chakra-ui/react";
 import type { MetaFunction } from "@remix-run/node";
 import { Link } from "@remix-run/react";
+
 import { Button } from "~/components";
 
 export const meta: MetaFunction = () => {
