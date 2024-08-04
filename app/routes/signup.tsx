@@ -13,13 +13,7 @@ import { authenticator } from "~/.server/auth";
 import db from "~/.server/db";
 import { commitSession, getSession } from "~/.server/session";
 import { Button, FormField, PageHeading } from "~/components";
-
-interface FormErrors {
-  email?: string[];
-  password?: string[];
-  username?: string[];
-}
-const EMPTY_FORM_ERRORS: FormErrors = {};
+import { formatValidationErrors } from "~/utils/form";
 
 export const meta: MetaFunction = () => {
   return [
@@ -39,6 +33,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   invariant(typeof password === "string", "password must be a string");
   invariant(typeof username === "string", "username must be a string");
 
+  const session = await getSession(request.headers.get("cookie"));
+
   try {
     const user = await db.user.create({
       data: {
@@ -48,30 +44,17 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       },
     });
 
-    const session = await getSession(request.headers.get("cookie"));
     session.set(authenticator.sessionKey, user);
     const headers = new Headers({ "Set-Cookie": await commitSession(session) });
     return redirect("/account", { headers });
   } catch (error) {
     if (error instanceof ZodError) {
-      const session = await getSession(request.headers.get("cookie"));
-      const errors = error.issues.reduce((aggValue, currValue) => {
-        const key = currValue.path[0] as keyof FormErrors;
-        invariant(typeof key === "string", "validation error must have a key");
+      const errors = formatValidationErrors(error);
+      const headers = new Headers({
+        "Set-Cookie": await commitSession(session),
+      });
 
-        return {
-          ...aggValue,
-          [key]: [...(aggValue[key] || []), currValue.message],
-        };
-      }, EMPTY_FORM_ERRORS);
-      return json(
-        { errors },
-        {
-          headers: {
-            "Set-Cookie": await commitSession(session),
-          },
-        },
-      );
+      return json({ errors }, { headers });
     }
 
     throw error;

@@ -14,6 +14,7 @@ import db, { Army, BaseShape, Unit } from "~/.server/db";
 import { Button, FormField, PageHeading } from "~/components";
 import { Input, Select, Textarea } from "@chakra-ui/react";
 import { ZodError } from "zod";
+import { formatValidationErrors } from "~/utils/form";
 
 type FormErrors = Partial<Record<keyof Unit, string[]>>;
 
@@ -79,16 +80,7 @@ export async function action({ request }: ActionFunctionArgs) {
       return redirect(`/units/${unit.id}/miniatures/new`);
   } catch (error) {
     if (error instanceof ZodError) {
-      const errors = error.issues.reduce((aggValue, currValue) => {
-        const key = currValue.path[0] as keyof FormErrors;
-        invariant(typeof key === "string");
-
-        return {
-          ...aggValue,
-          [key]: [...(aggValue[key] || []), currValue.message],
-        };
-      }, EMPTY_FORM_ERRORS);
-      return json({ errors });
+      return R.pipe(formatValidationErrors, R.objOf("errors"), json)(error);
     }
 
     throw error;
