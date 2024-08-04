@@ -2,9 +2,7 @@ import { faker } from "@faker-js/faker";
 
 describe("Armies", () => {
   it("can be created", () => {
-    const oldArmyName = faker.company.name();
     const armyName = faker.company.name();
-    const oldUnitName = faker.commerce.department();
     const unitName = faker.commerce.department();
     const miniatureName = faker.commerce.productName();
     const overlyLongName = faker.lorem.words(50);
@@ -28,15 +26,11 @@ describe("Armies", () => {
 
     // Check serverside validations
     cy.findByText("String must contain at most 255 character(s)");
-    cy.findByRole("textbox", { name: "Name" }).clear().type(oldArmyName);
+    cy.findByRole("textbox", { name: "Name" }).clear().type(armyName);
     cy.findByRole("button", { name: "Save" }).click();
 
-    cy.location("pathname").should("equal", "/armies/new");
-    cy.findByRole("textbox", { name: "Name" })
-      .should("have.value", oldArmyName)
-      .clear()
-      .type(armyName);
-    cy.findByRole("button", { name: "Add units" }).click();
+    cy.location("pathname").should("match", /armies\/\d+\/edit/);
+    cy.findByRole("link", { name: "Add units" }).click();
 
     cy.location("pathname").should("match", /armies\/\d+\/units\/new/);
     cy.findByRole("heading", { name: `Add a unit to ${armyName}` });
@@ -56,15 +50,11 @@ describe("Armies", () => {
 
     // Check serverside validations
     cy.findByText("String must contain at most 255 character(s)");
-    cy.findByRole("textbox", { name: "Name" }).clear().type(oldUnitName);
+    cy.findByRole("textbox", { name: "Name" }).clear().type(unitName);
     cy.findByRole("button", { name: "Save" }).click();
 
-    cy.location("pathname").should("match", /armies\/\d+\/units\/new/);
-    cy.findByRole("textbox", { name: "Name" })
-      .should("have.value", oldUnitName)
-      .clear()
-      .type(unitName);
-    cy.findByRole("button", { name: "Add models" }).click();
+    cy.location("pathname").should("match", /armies\/\d+\/units\/\d+\/edit/);
+    cy.findByRole("link", { name: "Add models" }).click();
 
     cy.location("pathname").should("match", /units\/\d+\/miniatures\/new/);
     cy.findByRole("heading", { name: `Add a model to ${unitName}` });
@@ -80,13 +70,16 @@ describe("Armies", () => {
     cy.findByRole("textbox", { name: "Name" }).clear().type(miniatureName);
     cy.findByRole("button", { name: "Save" }).click();
 
-    cy.location("pathname").should("match", /units\/\d+\/miniatures\/new/);
+    cy.location("pathname").should(
+      "match",
+      /units\/\d+\/miniatures\/\d+\/edit/,
+    );
     cy.findByRole("link", { name: "Back to unit" }).click();
 
-    cy.location("pathname").should("match", /armies\/\d+\/units\/new/);
+    cy.location("pathname").should("match", /armies\/\d+\/units\/\d+\/edit/);
     cy.findByRole("link", { name: "Back to army" }).click();
 
-    cy.location("pathname").should("equal", "/armies/new");
+    cy.location("pathname").should("match", /armies\/\d+\/edit/);
     cy.findByRole("link", { name: "Back to account" }).click();
 
     cy.location("pathname").should("equal", "/account");
