@@ -2,9 +2,9 @@ import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 
-import isHexColor from "validator/lib/isHexColor";
 import { wrap } from "~/utils/array";
 import { validate as validateArmy } from "~/models/army";
+import { validate as validateUnit } from "~/models/unit";
 
 export type {
   Game,
@@ -49,16 +49,6 @@ const UserCreateInput = z.object({
     },
     { message: "Username already taken" },
   ),
-});
-
-const UnitCreateInput = z.object({
-  name: shortTextValidations,
-  stats: longTextValidations,
-  gear: longTextValidations,
-  notes: longTextValidations,
-  baseLength: z.number().int().min(MIN_REQUIRED_NUMBER),
-  baseWidth: z.number().int().min(MIN_REQUIRED_NUMBER),
-  color: z.string().refine(isHexColor, "Color must be a hex color code."),
 });
 
 const MiniatureCreateInput = z.object({
@@ -110,13 +100,11 @@ const db = new PrismaClient().$extends({
     },
     unit: {
       create: async ({ args, query }) => {
-        await UnitCreateInput.parseAsync(args.data);
+        await validateUnit(args.data);
         return query(args);
       },
       createMany: async ({ args, query }) => {
-        await Promise.all(
-          wrap(args.data).map((data) => UnitCreateInput.parseAsync(data)),
-        );
+        await Promise.all(wrap(args.data).map(validateUnit));
         return query(args);
       },
     },

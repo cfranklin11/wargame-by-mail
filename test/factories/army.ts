@@ -3,7 +3,9 @@ import { Factory } from "fishery";
 import { Army } from "../../app/.server/db";
 import { faker } from "@faker-js/faker";
 
-export const armyInputFactory = Factory.define<Partial<Army>>(() => {
+export const armyInputFactory = Factory.define<
+  Omit<Army, "id" | "updatedAt" | "createdAt">
+>(() => {
   return {
     name: faker.company.name(),
     gameSystem: faker.commerce.department(),
@@ -18,9 +20,6 @@ export const armyFactory = Factory.define<Army>(({ sequence }) => {
     id: sequence,
     createdAt,
     updatedAt: faker.date.between({ from: createdAt, to: new Date() }),
-    name: faker.company.name(),
-    gameSystem: faker.commerce.department(),
-    faction: faker.commerce.product(),
-    description: faker.lorem.paragraph(),
+    ...armyInputFactory.build(),
   };
 });
