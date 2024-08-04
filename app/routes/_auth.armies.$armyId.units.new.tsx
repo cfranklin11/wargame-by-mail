@@ -14,7 +14,7 @@ import db, { Army, BaseShape, Unit } from "~/.server/db";
 import { Button, FormField, PageHeading } from "~/components";
 import { Input, Select, Textarea } from "@chakra-ui/react";
 import { ZodError } from "zod";
-import { formatValidationErrors } from "~/utils/form";
+import { convertToModelData, formatValidationErrors } from "~/utils/form";
 
 type FormErrors = Partial<Record<keyof Unit, string[]>>;
 
@@ -63,12 +63,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     const unit = await R.pipe(
-      R.invoker(0, "entries"),
-      R.map(([key, value]) => [
-        key,
-        Number.isNaN(parseInt(value)) ? value : parseInt(value),
-      ]),
-      Object.fromEntries,
+      convertToModelData,
       R.omit(["submit"])<Unit & { submit: string }>,
       R.objOf("data")<Unit>,
       db.unit.create,

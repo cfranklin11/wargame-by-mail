@@ -13,7 +13,7 @@ import db, { Miniature } from "~/.server/db";
 import { Button, FormField, PageHeading } from "~/components";
 import { Input, Textarea } from "@chakra-ui/react";
 import { ZodError } from "zod";
-import { formatValidationErrors } from "~/utils/form";
+import { convertToModelData, formatValidationErrors } from "~/utils/form";
 
 type FormErrors = Partial<Record<keyof Miniature, string[]>>;
 const EMPTY_FORM_ERRORS: FormErrors = {};
@@ -47,14 +47,7 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     await R.pipe(
       R.invoker(0, "formData"),
-      R.andThen(R.invoker(0, "entries")),
-      R.andThen(
-        R.map(([key, value]) => [
-          key,
-          Number.isNaN(parseInt(value)) ? value : parseInt(value),
-        ]),
-      ),
-      R.andThen(Object.fromEntries),
+      R.andThen(convertToModelData),
       R.andThen(R.objOf("data")<Miniature>),
       R.andThen(db.miniature.create),
     )(request);
