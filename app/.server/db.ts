@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { wrap } from "~/utils/array";
 import { validate as validateArmy } from "~/models/army";
 import { validate as validateUnit } from "~/models/unit";
+import { validate as validateMiniature } from "~/models/miniature";
 
 export type {
   Game,
@@ -17,11 +18,8 @@ export type {
 } from "@prisma/client";
 
 const SHORT_TEXT_LIMIT = 255;
-const LONG_TEXT_LIMIT = SHORT_TEXT_LIMIT * 4;
 const MIN_PASSWORD_LENGTH = 8;
 const MIN_REQUIRED_TEXT = 1;
-
-const MIN_REQUIRED_NUMBER = 1;
 
 // Basic client for use in validations
 const prisma = new PrismaClient();
@@ -30,8 +28,6 @@ const shortTextValidations = z
   .string()
   .min(MIN_REQUIRED_TEXT)
   .max(SHORT_TEXT_LIMIT);
-
-const longTextValidations = z.string().max(LONG_TEXT_LIMIT);
 
 const UserCreateInput = z.object({
   email: shortTextValidations.email().refine(
@@ -49,14 +45,6 @@ const UserCreateInput = z.object({
     },
     { message: "Username already taken" },
   ),
-});
-
-const MiniatureCreateInput = z.object({
-  name: shortTextValidations,
-  stats: longTextValidations,
-  gear: longTextValidations,
-  notes: longTextValidations,
-  count: z.number().int().min(MIN_REQUIRED_NUMBER),
 });
 
 const db = new PrismaClient().$extends({
@@ -110,13 +98,11 @@ const db = new PrismaClient().$extends({
     },
     miniature: {
       create: async ({ args, query }) => {
-        await MiniatureCreateInput.parseAsync(args.data);
+        await validateMiniature(args.data);
         return query(args);
       },
       createMany: async ({ args, query }) => {
-        await Promise.all(
-          wrap(args.data).map((data) => MiniatureCreateInput.parseAsync(data)),
-        );
+        await Promise.all(wrap(args.data).map(validateMiniature));
         return query(args);
       },
     },
