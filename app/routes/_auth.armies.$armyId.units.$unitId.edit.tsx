@@ -4,7 +4,6 @@ import {
   Link,
   MetaFunction,
   Params,
-  redirect,
   useActionData,
   useLoaderData,
 } from "@remix-run/react";
@@ -21,10 +20,10 @@ import { Army } from "~/models/army";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Wargame by Mail: Add a unit to your army" },
+    { title: "Wargame by Mail: Edit a unit in your army" },
     {
       name: "description",
-      content: "Add a unit with one or more models to your army.",
+      content: "Edit the characteristics of a unit in your army.",
     },
   ];
 };
@@ -40,27 +39,43 @@ const fetchArmy = (params: Params<string>) =>
     R.andThen(R.objOf("army")),
   )(params);
 
+const fetchUnit = (params: Params<string>) =>
+  R.pipe(
+    R.prop("unitId"),
+    R.tap((unitId) => invariant(typeof unitId === "string")),
+    parseInt,
+    R.objOf("id"),
+    R.objOf("where"),
+    db.unit.findUniqueOrThrow,
+    R.andThen(R.objOf("unit")),
+  )(params);
+
 const fetchBaseShapes = () =>
   R.pipe(db.baseShape.findMany, R.andThen(R.objOf("baseShapes")))();
 
+const prepareUpdateParams = (unit: Unit) => ({
+  where: { id: unit.id },
+  data: unit,
+});
+
 export function loader({ params }: LoaderFunctionArgs) {
   return R.pipe(
-    (params) => Promise.all([fetchArmy(params), fetchBaseShapes()]),
-    R.andThen(R.mergeAll<{ army: Army }, [{ baseShapes: BaseShape[] }]>),
+    (params) =>
+      Promise.all([fetchArmy(params), fetchBaseShapes(), fetchUnit(params)]),
+    R.andThen(
+      R.mergeAll<{ army: Army }, [{ baseShapes: BaseShape[] }, { unit: Unit }]>,
+    ),
     R.andThen(json),
   )(params);
 }
 
 export async function action({ request }: ActionFunctionArgs) {
   try {
-    return await R.pipe(
+    await R.pipe(
       R.invoker(0, "formData"),
       R.andThen(convertToModelData),
-      R.andThen(R.objOf("data")<Unit>),
-      R.andThen(db.unit.create),
-      R.andThen((unit) =>
-        redirect(`/armies/${unit.armyId}/units/${unit.id}/edit`),
-      ),
+      R.andThen(prepareUpdateParams),
+      R.andThen(db.unit.update),
     )(request);
   } catch (error) {
     if (error instanceof ZodError) {
@@ -72,29 +87,29 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function NewUnitPage() {
-  const { army, baseShapes } = useLoaderData<typeof loader>();
+  const { army, baseShapes, unit } = useLoaderData<typeof loader>();
   const { errors } = useActionData<typeof action>() || {};
 
   return (
     <>
-      <PageHeading>Add a unit to {army.name}</PageHeading>
-      <Form method="post">
+      <PageHeading>Edit {unit.name}</PageHeading>
+      <Form method="post" reloadDocument>
         <FormField isRequired label="Name" errors={errors?.name}>
-          <Input type="text" name="name" />
+          <Input type="text" name="name" defaultValue={unit.name} />
         </FormField>
         <FormField label="Stats" errors={errors?.stats}>
-          <Textarea name="stats" />
+          <Textarea name="stats" defaultValue={unit.stats} />
         </FormField>
         <FormField label="Gear" errors={errors?.gear}>
-          <Textarea name="gear" />
+          <Textarea name="gear" defaultValue={unit.gear} />
         </FormField>
         <FormField label="Notes" errors={errors?.notes}>
-          <Textarea name="notes" />
+          <Textarea name="notes" defaultValue={unit.notes} />
         </FormField>
         <FormField isRequired label="Base shape">
-          <Select placeholder="Select models' base shape" name="baseShapeId">
+          <Select name="baseShapeId">
             {baseShapes.map(({ name, id }) => (
-              <option key={id} value={id}>
+              <option key={id} value={id} selected={id === unit.baseShapeId}>
                 {name}
               </option>
             ))}
@@ -110,7 +125,7 @@ export default function NewUnitPage() {
             name="baseLength"
             min={1}
             step={1}
-            defaultValue={25}
+            defaultValue={unit.baseLength}
           />
         </FormField>
         <FormField
@@ -123,15 +138,21 @@ export default function NewUnitPage() {
             name="baseWidth"
             min={1}
             step={1}
-            defaultValue={25}
+            defaultValue={unit.baseWidth}
           />
         </FormField>
         <FormField isRequired label="Model color" errors={errors?.color}>
-          <Input type="color" name="color" />
+          <Input type="color" name="color" defaultValue={unit.color} />
         </FormField>
         <Input type="hidden" name="armyId" value={army.id} />
-        <Button type="submit">Save</Button>
+        <Input type="hidden" name="unitId" value={unit.id} />
+        <Button type="submit" value="save" name="submit">
+          Save
+        </Button>
       </Form>
+      <Link to={`/units/${unit.id}/miniatures/new`}>
+        <Button>Add models</Button>
+      </Link>
       <Link to={`/armies/${army.id}/edit`}>
         <Button>Back to army</Button>
       </Link>
