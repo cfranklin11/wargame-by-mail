@@ -12,7 +12,7 @@ import { ZodError } from "zod";
 
 import db from "~/.server/db";
 import { Button, FormField, PageHeading } from "~/components";
-import { formatValidationErrors } from "~/utils/form";
+import { convertToModelData, formatValidationErrors } from "~/utils/form";
 import { Army } from "~/models/army";
 
 export const meta: MetaFunction = () => {
@@ -29,7 +29,7 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     return await R.pipe(
       R.invoker(0, "formData"),
-      R.andThen(Object.fromEntries),
+      R.andThen(convertToModelData),
       R.andThen(R.objOf("data")<Army>),
       R.andThen(db.army.create),
       R.andThen((army) => redirect(`/armies/${army.id}/edit`)),

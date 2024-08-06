@@ -13,7 +13,7 @@ import { ZodError } from "zod";
 
 import db from "~/.server/db";
 import { Button, FormField, PageHeading } from "~/components";
-import { formatValidationErrors } from "~/utils/form";
+import { convertToModelData, formatValidationErrors } from "~/utils/form";
 import { Army } from "~/models/army";
 import invariant from "tiny-invariant";
 
@@ -51,7 +51,7 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     await R.pipe(
       R.invoker(0, "formData"),
-      R.andThen(Object.fromEntries),
+      R.andThen(convertToModelData),
       R.andThen(prepareUpdateParams),
       R.andThen(db.army.update),
     )(request);
