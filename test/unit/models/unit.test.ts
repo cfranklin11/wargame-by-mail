@@ -1,8 +1,8 @@
 import * as R from "ramda";
 import { ZodError } from "zod";
 
-import { unitInputFactory } from "../factories/unit";
-import * as unitModel from "../../app/models/unit";
+import { unitInputFactory } from "../../factories/unit";
+import * as unitModel from "../../../app/models/unit";
 
 describe("validate", () => {
   const validUnitInput = unitInputFactory.build();

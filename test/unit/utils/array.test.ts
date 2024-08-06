@@ -1,4 +1,4 @@
-import { wrap } from "../../app/utils/array";
+import { wrap } from "../../../app/utils/array";
 
 describe("wrap", () => {
   describe("when object is not an array", () => {

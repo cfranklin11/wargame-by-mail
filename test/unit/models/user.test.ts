@@ -2,8 +2,8 @@ import * as R from "ramda";
 import { ZodError } from "zod";
 import { PrismaClient } from "@prisma/client";
 
-import { userInputFactory, userFactory } from "../factories/user";
-import * as userModel from "../../app/models/user";
+import { userInputFactory, userFactory } from "../../factories/user";
+import * as userModel from "../../../app/models/user";
 
 describe("validate", () => {
   const prisma = new PrismaClient();

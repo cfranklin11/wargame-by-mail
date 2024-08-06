@@ -31,7 +31,7 @@
     "test:e2e:open": "start-server-and-test dev http://localhost:$PORT cypress:open",
     "test:e2e:run": "start-server-and-test dev http://localhost:$PORT cypress:run",
     "test:seed": "prisma db seed -- --environment test",
-    "test:unit": "jest",
+    "test:unit": "jest test/unit",
     "typecheck": "tsc"
   },
   "prisma": {
