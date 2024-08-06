@@ -24,4 +24,4 @@ function clean_up() {
 
 docker-compose exec db psql -c "CREATE DATABASE test;" -U $DATABASE_USER
 
-PORT=7357 npm run test:local
+PORT=7357 npm run test:e2e:local
