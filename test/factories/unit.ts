@@ -12,8 +12,8 @@ export const unitInputFactory = Factory.define<
     gear: faker.lorem.paragraph(),
     notes: faker.lorem.paragraph(),
     color: faker.color.rgb(),
-    baseLength: faker.number.int({ min: 1 }),
-    baseWidth: faker.number.int({ min: 1 }),
+    baseLength: faker.number.int({ min: 1, max: 1000 }),
+    baseWidth: faker.number.int({ min: 1, max: 1000 }),
   };
 });
 

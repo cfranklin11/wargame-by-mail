@@ -10,12 +10,12 @@ import {
 } from "@remix-run/react";
 import * as R from "ramda";
 import { ZodError } from "zod";
+import invariant from "tiny-invariant";
 
 import db from "~/.server/db";
 import { Button, FormField, PageHeading } from "~/components";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
-import { Army } from "~/models/army";
-import invariant from "tiny-invariant";
+import { Army, find as findArmy } from "~/models/army";
 
 export const meta: MetaFunction = () => {
   return [
@@ -32,9 +32,7 @@ const fetchArmy = (params: Params<string>) =>
     R.prop("armyId"),
     R.tap((armyId) => invariant(typeof armyId === "string")),
     parseInt,
-    R.objOf("id"),
-    R.objOf("where"),
-    db.army.findUniqueOrThrow,
+    findArmy,
     R.andThen(R.objOf("army")),
   )(params);
 

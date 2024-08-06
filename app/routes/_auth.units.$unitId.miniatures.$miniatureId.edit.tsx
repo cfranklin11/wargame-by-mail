@@ -15,8 +15,8 @@ import { ZodError } from "zod";
 import db from "~/.server/db";
 import { Button, FormField, PageHeading } from "~/components";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
-import { Miniature } from "~/models/miniature";
-import { Unit } from "~/models/unit";
+import { Miniature, find as findMiniature } from "~/models/miniature";
+import { Unit, find as findUnit } from "~/models/unit";
 
 type FormErrors = Partial<Record<keyof Miniature, string[]>>;
 const EMPTY_FORM_ERRORS: FormErrors = {};
@@ -36,9 +36,7 @@ const fetchUnit = (params: Params<string>) =>
     R.prop("unitId"),
     R.tap((unitId) => invariant(typeof unitId === "string")),
     parseInt,
-    R.objOf("id"),
-    R.objOf("where"),
-    db.unit.findUniqueOrThrow,
+    findUnit,
     R.andThen(R.objOf("unit")),
   )(params);
 
@@ -47,9 +45,7 @@ const fetchMiniature = (params: Params<string>) =>
     R.prop("miniatureId"),
     R.tap((miniatureId) => invariant(typeof miniatureId === "string")),
     parseInt,
-    R.objOf("id"),
-    R.objOf("where"),
-    db.miniature.findUniqueOrThrow,
+    findMiniature,
     R.andThen(R.objOf("miniature")),
   )(params);
 

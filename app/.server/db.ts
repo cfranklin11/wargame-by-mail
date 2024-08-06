@@ -1,13 +1,20 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
-import { wrap } from "~/utils/array";
-import { validate as validateArmy } from "~/models/army";
-import { validate as validateUnit } from "~/models/unit";
-import { validate as validateMiniature } from "~/models/miniature";
-import { validate as validateUser } from "~/models/user";
+import { wrap } from "../utils/array";
+import { validate as validateArmy } from "../models/army";
+import { validate as validateUnit } from "../models/unit";
+import { validate as validateMiniature } from "../models/miniature";
+import { validate as validateUser } from "../models/user";
 
-export type { Game, Terrain, BaseShape } from "@prisma/client";
+export type {
+  Game,
+  Terrain,
+  BaseShape,
+  Army,
+  Unit,
+  Miniature,
+} from "@prisma/client";
 
 // Basic client for use in validations
 const prisma = new PrismaClient();

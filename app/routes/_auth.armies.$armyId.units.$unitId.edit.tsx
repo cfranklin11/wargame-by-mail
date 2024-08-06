@@ -15,8 +15,8 @@ import db, { BaseShape } from "~/.server/db";
 import { Button, FormField, PageHeading } from "~/components";
 import { Input, Select, Textarea } from "@chakra-ui/react";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
-import { Unit } from "~/models/unit";
-import { Army } from "~/models/army";
+import { Unit, find as findUnit } from "~/models/unit";
+import { Army, find as findArmy } from "~/models/army";
 
 export const meta: MetaFunction = () => {
   return [
@@ -33,9 +33,7 @@ const fetchArmy = (params: Params<string>) =>
     R.prop("armyId"),
     R.tap((armyId) => invariant(typeof armyId === "string")),
     parseInt,
-    R.objOf("id"),
-    R.objOf("where"),
-    db.army.findUniqueOrThrow,
+    findArmy,
     R.andThen(R.objOf("army")),
   )(params);
 
@@ -44,9 +42,7 @@ const fetchUnit = (params: Params<string>) =>
     R.prop("unitId"),
     R.tap((unitId) => invariant(typeof unitId === "string")),
     parseInt,
-    R.objOf("id"),
-    R.objOf("where"),
-    db.unit.findUniqueOrThrow,
+    findUnit,
     R.andThen(R.objOf("unit")),
   )(params);
 
