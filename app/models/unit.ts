@@ -1,7 +1,8 @@
 import { z } from "zod";
 import isHexColor from "validator/lib/isHexColor";
+import db from "../.server/db";
 
-export type { Unit } from "@prisma/client";
+export type { Unit } from "../.server/db";
 
 const SHORT_TEXT_LIMIT = 255;
 const LONG_TEXT_LIMIT = SHORT_TEXT_LIMIT * 4;
@@ -27,4 +28,8 @@ const UnitInput = z.object({
 
 export function validate(army: unknown) {
   return UnitInput.parseAsync(army);
+}
+
+export function find(id: number) {
+  return db.unit.findUniqueOrThrow({ where: { id } });
 }

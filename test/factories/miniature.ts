@@ -11,7 +11,7 @@ export const miniatureInputFactory = Factory.define<
     stats: faker.lorem.paragraph(),
     gear: faker.lorem.paragraph(),
     notes: faker.lorem.paragraph(),
-    count: faker.number.int(),
+    count: faker.number.int({ min: 1, max: 1000 }),
   };
 });
 

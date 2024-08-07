@@ -1,8 +1,8 @@
 import * as R from "ramda";
 import { ZodError } from "zod";
 
-import { armyInputFactory } from "../factories/army";
-import * as armyModel from "../../app/models/army";
+import { armyInputFactory } from "../../factories/army";
+import * as armyModel from "../../../app/models/army";
 
 describe("validate", () => {
   const validArmyInput = armyInputFactory.build();

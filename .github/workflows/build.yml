@@ -11,6 +11,7 @@ jobs:
       DATABASE: test
       DATABASE_URL: "postgresql://user:password@localhost:5432/test?schema=public"
       SECRET: supersecretsauce
+      CI: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,7 +31,7 @@ jobs:
       - uses: hoverkraft-tech/compose-action@v2.0.1
       - name: Run e2e tests
         id: e2e
-        run: PORT=7357 npm run test:ci
+        run: PORT=7357 npm run test:e2e:ci
       - uses: actions/upload-artifact@v4
         if: ${{ failure() && steps.e2e.outcome == 'failure' }}
         with:

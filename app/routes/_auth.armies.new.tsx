@@ -8,18 +8,12 @@ import {
   useActionData,
 } from "@remix-run/react";
 import * as R from "ramda";
-import invariant from "tiny-invariant";
 import { ZodError } from "zod";
 
 import db from "~/.server/db";
 import { Button, FormField, PageHeading } from "~/components";
-import { formatValidationErrors } from "~/utils/form";
+import { convertToModelData, formatValidationErrors } from "~/utils/form";
 import { Army } from "~/models/army";
-
-type FormErrors = Partial<Record<keyof Army, string[]>>;
-
-const SUBMIT_TYPES = ["save", "addUnits"];
-const EMPTY_FORM_ERRORS: FormErrors = {};
 
 export const meta: MetaFunction = () => {
   return [
@@ -32,25 +26,14 @@ export const meta: MetaFunction = () => {
 };
 
 export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const submitType = formData.get("submit");
-
-  invariant(
-    typeof submitType === "string" && SUBMIT_TYPES.includes(submitType),
-  );
-
   try {
-    const army = await R.pipe(
-      Object.fromEntries,
-      R.omit(["submit"])<Army & { submit: string }>,
-      R.objOf("data")<Army>,
-      db.army.create,
-    )(formData);
-
-    if (submitType === "save") return json({ errors: EMPTY_FORM_ERRORS });
-
-    if (submitType === "addUnits")
-      return redirect(`/armies/${army.id}/units/new`);
+    return await R.pipe(
+      R.invoker(0, "formData"),
+      R.andThen(convertToModelData),
+      R.andThen(R.objOf("data")<Army>),
+      R.andThen(db.army.create),
+      R.andThen((army) => redirect(`/armies/${army.id}/edit`)),
+    )(request);
   } catch (error) {
     if (error instanceof ZodError) {
       return R.pipe(formatValidationErrors, R.objOf("errors"), json)(error);
@@ -79,12 +62,7 @@ export default function NewArmyPage() {
         <FormField label="Description" errors={errors?.description}>
           <Textarea name="description" />
         </FormField>
-        <Button type="submit" value="save" name="submit">
-          Save
-        </Button>
-        <Button type="submit" value="addUnits" name="submit">
-          Add units
-        </Button>
+        <Button type="submit">Save</Button>
       </Form>
       <Link to="/account">
         <Button>Back to account</Button>

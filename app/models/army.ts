@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-export type { Army } from "@prisma/client";
+import db from "../.server/db";
+export type { Army } from "../.server/db";
 
 const SHORT_TEXT_LIMIT = 255;
 const LONG_TEXT_LIMIT = SHORT_TEXT_LIMIT * 4;
@@ -22,4 +23,8 @@ const ArmyInput = z.object({
 
 export function validate(army: unknown) {
   return ArmyInput.parseAsync(army);
+}
+
+export function find(id: number) {
+  return db.army.findUniqueOrThrow({ where: { id } });
 }

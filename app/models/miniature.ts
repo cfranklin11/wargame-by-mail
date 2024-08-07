@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-export type { Miniature } from "@prisma/client";
+import db from "../.server/db";
+export type { Miniature } from "../.server/db";
 
 const SHORT_TEXT_LIMIT = 255;
 const LONG_TEXT_LIMIT = SHORT_TEXT_LIMIT * 4;
@@ -24,4 +25,8 @@ const MiniatureInput = z.object({
 
 export function validate(army: unknown) {
   return MiniatureInput.parseAsync(army);
+}
+
+export function find(id: number) {
+  return db.miniature.findUniqueOrThrow({ where: { id } });
 }

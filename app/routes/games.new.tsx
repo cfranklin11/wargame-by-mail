@@ -5,6 +5,7 @@ import * as R from "ramda";
 
 import db from "../.server/db";
 import { PageHeading, FormField, Button } from "~/components";
+import { convertToModelData } from "~/utils/form";
 
 export const meta: MetaFunction = () => {
   return [
@@ -19,7 +20,7 @@ export const meta: MetaFunction = () => {
 export const action: ActionFunction = async ({ request }) =>
   R.pipe(
     R.invoker(0, "formData"),
-    R.andThen(Object.fromEntries),
+    R.andThen(convertToModelData),
     R.andThen(R.objOf("data")),
     R.andThen(db.game.create),
     R.andThen(R.prop("id")),

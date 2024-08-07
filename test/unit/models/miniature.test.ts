@@ -1,8 +1,8 @@
 import * as R from "ramda";
 import { ZodError } from "zod";
 
-import { miniatureInputFactory } from "../factories/miniature";
-import * as miniatureModel from "../../app/models/miniature";
+import { miniatureInputFactory } from "../../factories/miniature";
+import * as miniatureModel from "../../../app/models/miniature";
 
 describe("validate", () => {
   const validMiniatureInput = miniatureInputFactory.build();
