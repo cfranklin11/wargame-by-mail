@@ -23,10 +23,10 @@ const MiniatureInput = z.object({
   count: z.number().int().min(MIN_REQUIRED_NUMBER),
 });
 
-export function validate(army: unknown) {
-  return MiniatureInput.parseAsync(army);
+export function validateMiniature(miniature: unknown) {
+  return MiniatureInput.parseAsync(miniature);
 }
 
-export function find(id: number) {
+export function findMiniature(id: number) {
   return db.miniature.findUniqueOrThrow({ where: { id } });
 }

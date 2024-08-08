@@ -2,10 +2,10 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 import { wrap } from "../utils/array";
-import { validate as validateArmy } from "../models/army";
-import { validate as validateUnit } from "../models/unit";
-import { validate as validateMiniature } from "../models/miniature";
-import { validate as validateUser } from "../models/user";
+import { validateArmy } from "../models/army";
+import { validateUnit } from "../models/unit";
+import { validateMiniature } from "../models/miniature";
+import { validateUser } from "../models/user";
 
 export type {
   Game,

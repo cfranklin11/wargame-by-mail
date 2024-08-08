@@ -2,7 +2,7 @@ import * as R from "ramda";
 import { ZodError } from "zod";
 
 import { armyInputFactory } from "../../factories/army";
-import * as armyModel from "../../../app/models/army";
+import { validateArmy } from "../../../app/models/army";
 
 describe("validate", () => {
   const validArmyInput = armyInputFactory.build();
@@ -11,7 +11,7 @@ describe("validate", () => {
     const army = validArmyInput;
 
     it("returns the army object", async () => {
-      expect(await armyModel.validate(army)).toEqual(army);
+      expect(await validateArmy(army)).toEqual(army);
     });
   });
 
@@ -28,7 +28,7 @@ describe("validate", () => {
       expect.assertions(1);
 
       try {
-        await armyModel.validate(army);
+        await validateArmy(army);
       } catch (error) {
         expect((error as ZodError).issues).toEqual(
           expect.arrayContaining([

@@ -26,10 +26,10 @@ const UnitInput = z.object({
   color: z.string().refine(isHexColor, "Color must be a hex color code."),
 });
 
-export function validate(army: unknown) {
-  return UnitInput.parseAsync(army);
+export function validateUnit(unit: unknown) {
+  return UnitInput.parseAsync(unit);
 }
 
-export function find(id: number) {
+export function findUnit(id: number) {
   return db.unit.findUniqueOrThrow({ where: { id } });
 }

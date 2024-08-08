@@ -1,6 +1,6 @@
 import { miniatureInputFactory } from "../../factories/miniature";
 import db from "../../../app/.server/db";
-import * as miniatureModule from "../../../app/models/miniature";
+import { findMiniature } from "../../../app/models/miniature";
 import { unitInputFactory } from "../../factories/unit";
 import { armyInputFactory } from "../../factories/army";
 import { userInputFactory } from "../../factories/user";
@@ -27,7 +27,7 @@ describe("find", () => {
     });
 
     it("returns the miniature record", async () => {
-      expect(await miniatureModule.find(miniatureId)).toMatchObject(miniature);
+      expect(await findMiniature(miniatureId)).toMatchObject(miniature);
     });
   });
 
@@ -36,7 +36,7 @@ describe("find", () => {
       expect.assertions(1);
 
       try {
-        await miniatureModule.find(-1);
+        await findMiniature(-1);
       } catch (e) {
         expect((e as Error).message).toEqual("No Miniature found");
       }

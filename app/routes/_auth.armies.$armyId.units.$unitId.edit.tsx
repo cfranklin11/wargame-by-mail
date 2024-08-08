@@ -15,8 +15,8 @@ import db, { BaseShape } from "~/.server/db";
 import { Button, FormField, PageHeading } from "~/components";
 import { Input, Select, Textarea } from "@chakra-ui/react";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
-import { Unit, find as findUnit } from "~/models/unit";
-import { Army, find as findArmy } from "~/models/army";
+import { Unit, findUnit } from "~/models/unit";
+import { Army, findArmy } from "~/models/army";
 
 export const meta: MetaFunction = () => {
   return [

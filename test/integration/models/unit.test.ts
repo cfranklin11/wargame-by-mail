@@ -1,6 +1,6 @@
 import { unitInputFactory } from "../../factories/unit";
 import db from "../../../app/.server/db";
-import * as unitModule from "../../../app/models/unit";
+import { findUnit } from "../../../app/models/unit";
 import { armyInputFactory } from "../../factories/army";
 import { userInputFactory } from "../../factories/user";
 
@@ -23,7 +23,7 @@ describe("find", () => {
     });
 
     it("returns the unit record", async () => {
-      expect(await unitModule.find(unitId)).toMatchObject(unit);
+      expect(await findUnit(unitId)).toMatchObject(unit);
     });
   });
 
@@ -32,7 +32,7 @@ describe("find", () => {
       expect.assertions(1);
 
       try {
-        await unitModule.find(-1);
+        await findUnit(-1);
       } catch (e) {
         expect((e as Error).message).toEqual("No Unit found");
       }

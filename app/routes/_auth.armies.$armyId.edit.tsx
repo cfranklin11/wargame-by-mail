@@ -15,7 +15,7 @@ import invariant from "tiny-invariant";
 import db from "~/.server/db";
 import { Button, FormField, PageHeading } from "~/components";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
-import { Army, find as findArmy } from "~/models/army";
+import { Army, findArmy } from "~/models/army";
 
 export const meta: MetaFunction = () => {
   return [

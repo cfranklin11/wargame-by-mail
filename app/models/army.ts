@@ -22,10 +22,10 @@ const ArmyInput = z.object({
   userId: z.number().int().min(1),
 });
 
-export function validate(army: unknown) {
+export function validateArmy(army: unknown) {
   return ArmyInput.parseAsync(army);
 }
 
-export function find(id: number) {
+export function findArmy(id: number) {
   return db.army.findUniqueOrThrow({ where: { id } });
 }

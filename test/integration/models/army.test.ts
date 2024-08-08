@@ -1,6 +1,6 @@
 import { armyInputFactory } from "../../factories/army";
-import db, { Army } from "../../../app/.server/db";
-import * as armyModule from "../../../app/models/army";
+import db from "../../../app/.server/db";
+import { findArmy, Army } from "../../../app/models/army";
 import { userInputFactory } from "../../factories/user";
 
 describe("find", () => {
@@ -17,7 +17,7 @@ describe("find", () => {
     });
 
     it("returns the army record", async () => {
-      expect(await armyModule.find(army.id)).toMatchObject(army);
+      expect(await findArmy(army.id)).toMatchObject(army);
     });
   });
 
@@ -26,7 +26,7 @@ describe("find", () => {
       expect.assertions(1);
 
       try {
-        await armyModule.find(-1);
+        await findArmy(-1);
       } catch (e) {
         expect((e as Error).message).toEqual("No Army found");
       }
