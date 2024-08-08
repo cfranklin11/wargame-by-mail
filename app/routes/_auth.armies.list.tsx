@@ -2,18 +2,15 @@ import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import * as R from "ramda";
 
-import { PageHeading, Button } from "~/components";
+import { PageHeading, Button, RecordTable } from "~/components";
 import { authenticator } from "~/.server/auth";
 import db from "~/.server/db";
-import {
-  IconButton,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Tr,
-} from "@chakra-ui/react";
-import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+
+const TABLE_LABELS = {
+  name: "Name",
+  gameSystem: "Game",
+  faction: "Faction",
+};
 
 export const meta: MetaFunction = () => {
   return [
@@ -47,33 +44,11 @@ export default function ArmiesPage() {
     <>
       <PageHeading>Your armies</PageHeading>
       {armies.length === 0 ? null : (
-        <TableContainer>
-          <Table>
-            <Tbody>
-              {armies.map(({ id, name, gameSystem, faction }) => (
-                <Tr key={id}>
-                  <Td>{name}</Td>
-                  <Td>{gameSystem}</Td>
-                  <Td>{faction}</Td>
-                  <Td textAlign="right" paddingRight="0.25rem">
-                    <IconButton
-                      aria-label="Edit"
-                      icon={<EditIcon boxSize={{ base: 6 }} />}
-                      padding="1rem"
-                    ></IconButton>
-                  </Td>
-                  <Td paddingLeft="0.25rem">
-                    <IconButton
-                      aria-label="Delete"
-                      icon={<DeleteIcon boxSize={{ base: 6 }} />}
-                      padding="1rem"
-                    ></IconButton>
-                  </Td>
-                </Tr>
-              ))}
-            </Tbody>
-          </Table>
-        </TableContainer>
+        <RecordTable
+          columns={["name", "gameSystem", "faction"]}
+          records={armies}
+          labelMap={TABLE_LABELS}
+        />
       )}
       <Link to={"/armies/new"}>
         <Button>Build an army</Button>
