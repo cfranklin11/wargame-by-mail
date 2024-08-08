@@ -3,6 +3,7 @@ import db from "../../../app/.server/db";
 import * as miniatureModule from "../../../app/models/miniature";
 import { unitInputFactory } from "../../factories/unit";
 import { armyInputFactory } from "../../factories/army";
+import { userInputFactory } from "../../factories/user";
 
 describe("find", () => {
   describe("when the miniature exists", () => {
@@ -10,10 +11,13 @@ describe("find", () => {
     const miniature = miniatureInputFactory.build();
 
     beforeEach(async () => {
-      const { id: baseShapeId } = await db.baseShape.findFirstOrThrow();
-      const { id: armyId } = await db.army.create({
-        data: armyInputFactory.build(),
+      const { id: userId } = await db.user.create({
+        data: userInputFactory.build(),
       });
+      const { id: armyId } = await db.army.create({
+        data: armyInputFactory.build({ userId }),
+      });
+      const { id: baseShapeId } = await db.baseShape.findFirstOrThrow();
       const { id: unitId } = await db.unit.create({
         data: { ...unitInputFactory.build(), baseShapeId, armyId },
       });
