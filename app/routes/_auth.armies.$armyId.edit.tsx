@@ -88,8 +88,8 @@ export default function EditArmyPage() {
       <Link to={`/armies/${army.id}/units/new`}>
         <Button>Add units</Button>
       </Link>
-      <Link to="/account">
-        <Button>Back to account</Button>
+      <Link to="/armies/list">
+        <Button>Back to armies</Button>
       </Link>
     </>
   );
