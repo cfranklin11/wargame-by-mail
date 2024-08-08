@@ -4,6 +4,7 @@ import { findMiniature } from "../../../app/models/miniature";
 import { unitInputFactory } from "../../factories/unit";
 import { armyInputFactory } from "../../factories/army";
 import { userInputFactory } from "../../factories/user";
+import { baseShapeInputFactory } from "../../factories/baseShape";
 
 describe("find", () => {
   describe("when the miniature exists", () => {
@@ -17,7 +18,9 @@ describe("find", () => {
       const { id: armyId } = await db.army.create({
         data: armyInputFactory.build({ userId }),
       });
-      const { id: baseShapeId } = await db.baseShape.findFirstOrThrow();
+      const { id: baseShapeId } = await db.baseShape.create({
+        data: baseShapeInputFactory.build(),
+      });
       const { id: unitId } = await db.unit.create({
         data: { ...unitInputFactory.build(), baseShapeId, armyId },
       });
