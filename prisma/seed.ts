@@ -2,27 +2,38 @@ import { parseArgs } from "node:util";
 
 import db from "~/.server/db";
 import fixtureUser from "../cypress/fixtures/user.json";
+import fixtureArmy from "../cypress/fixtures/army.json";
+import fixtureUnit from "../cypress/fixtures/unit.json";
+import fixtureMiniature from "../cypress/fixtures/miniature.json";
+
+async function seedBaseData() {
+  await Promise.all([
+    db.baseShape.createMany({
+      data: [{ name: "square" }, { name: "round" }],
+    }),
+    db.terrainType.createMany({
+      data: [{ name: "woods" }, { name: "ruins" }, { name: "crater" }],
+    }),
+    db.terrainShape.createMany({
+      data: [{ name: "rectangle" }, { name: "oval" }],
+    }),
+  ]);
+}
 
 async function seedTestData() {
-  await db.$transaction(async (tx) => {
-    await tx.user.createMany({
-      data: [fixtureUser],
-    });
+  const { id: userId } = await db.user.create({ data: fixtureUser });
+  const { id: armyId } = await db.army.create({
+    data: { ...fixtureArmy, userId },
   });
+  const { id: baseShapeId } = await db.baseShape.findFirstOrThrow();
+  const { id: unitId } = await db.unit.create({
+    data: { ...fixtureUnit, armyId, baseShapeId },
+  });
+  await db.miniature.create({ data: { ...fixtureMiniature, unitId } });
 }
 
 async function main() {
-  await db.$transaction(async (tx) => {
-    await tx.terrainType.createMany({
-      data: [{ name: "woods" }, { name: "ruins" }, { name: "crater" }],
-    });
-    await tx.terrainShape.createMany({
-      data: [{ name: "rectangle" }, { name: "oval" }],
-    });
-    await tx.baseShape.createMany({
-      data: [{ name: "square" }, { name: "round" }],
-    });
-  });
+  await seedBaseData();
 
   const {
     values: { environment },
