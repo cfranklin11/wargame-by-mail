@@ -1,16 +1,12 @@
 import { parseArgs } from "node:util";
+
 import db from "~/.server/db";
+import fixtureUser from "../cypress/fixtures/user.json";
 
 async function seedTestData() {
   await db.$transaction(async (tx) => {
     await tx.user.createMany({
-      data: [
-        {
-          username: "testuser",
-          email: "testuser@wargamebymail.com",
-          password: "supersecretsauce",
-        },
-      ],
+      data: [fixtureUser],
     });
   });
 }
