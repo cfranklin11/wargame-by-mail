@@ -33,6 +33,6 @@ const UserInput = (validationDb: PrismaClient) =>
     ),
   });
 
-export function validate(validationDb: PrismaClient, user: unknown) {
+export function validateUser(validationDb: PrismaClient, user: unknown) {
   return UserInput(validationDb).parseAsync(user);
 }

@@ -8,6 +8,9 @@ describe("Armies", () => {
     const overlyLongName = faker.lorem.words(50);
 
     cy.login();
+    cy.findByRole("link", { name: "Your armies" }).click();
+
+    cy.location("pathname").should("equal", "/armies/list");
     cy.findByRole("link", { name: "Build an army" }).click();
 
     cy.location("pathname").should("equal", "/armies/new");
@@ -77,9 +80,15 @@ describe("Armies", () => {
     cy.findByRole("link", { name: "Back to unit" }).click();
 
     cy.location("pathname").should("match", /armies\/\d+\/units\/\d+\/edit/);
+    cy.findByRole("row", { name: new RegExp(miniatureName) });
     cy.findByRole("link", { name: "Back to army" }).click();
 
     cy.location("pathname").should("match", /armies\/\d+\/edit/);
+    cy.findByRole("row", { name: new RegExp(unitName) });
+    cy.findByRole("link", { name: "Back to armies" }).click();
+
+    cy.location("pathname").should("equal", "/armies/list");
+    cy.findByRole("row", { name: new RegExp(armyName) });
     cy.findByRole("link", { name: "Back to account" }).click();
 
     cy.location("pathname").should("equal", "/account");

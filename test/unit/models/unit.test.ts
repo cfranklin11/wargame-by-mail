@@ -2,7 +2,7 @@ import * as R from "ramda";
 import { ZodError } from "zod";
 
 import { unitInputFactory } from "../../factories/unit";
-import * as unitModel from "../../../app/models/unit";
+import { validateUnit } from "../../../app/models/unit";
 
 describe("validate", () => {
   const validUnitInput = unitInputFactory.build();
@@ -11,7 +11,7 @@ describe("validate", () => {
     const unit = validUnitInput;
 
     it("returns the unit object", async () => {
-      expect(await unitModel.validate(unit)).toEqual(unit);
+      expect(await validateUnit(unit)).toEqual(unit);
     });
   });
 
@@ -26,7 +26,7 @@ describe("validate", () => {
       expect.assertions(1);
 
       try {
-        await unitModel.validate(unit);
+        await validateUnit(unit);
       } catch (error) {
         expect((error as ZodError).issues).toEqual(
           expect.arrayContaining([
@@ -47,7 +47,7 @@ describe("validate", () => {
       expect.assertions(1);
 
       try {
-        await unitModel.validate(unit);
+        await validateUnit(unit);
       } catch (error) {
         expect((error as ZodError).issues).toEqual(
           expect.arrayContaining([
@@ -69,7 +69,7 @@ describe("validate", () => {
       expect.assertions(1);
 
       try {
-        await unitModel.validate(unit);
+        await validateUnit(unit);
       } catch (error) {
         expect((error as ZodError).issues).toEqual(
           expect.arrayContaining([
@@ -95,7 +95,7 @@ describe("validate", () => {
       expect.assertions(1);
 
       try {
-        await unitModel.validate(unit);
+        await validateUnit(unit);
       } catch (error) {
         expect((error as ZodError).issues).toEqual(
           expect.arrayContaining([

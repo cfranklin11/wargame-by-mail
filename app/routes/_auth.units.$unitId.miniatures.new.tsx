@@ -17,7 +17,7 @@ import db from "~/.server/db";
 import { Button, FormField, PageHeading } from "~/components";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
 import { Miniature } from "~/models/miniature";
-import { find as findUnit } from "~/models/unit";
+import { findUnit } from "~/models/unit";
 
 export const meta: MetaFunction = () => {
   return [

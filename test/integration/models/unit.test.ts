@@ -1,7 +1,9 @@
 import { unitInputFactory } from "../../factories/unit";
 import db from "../../../app/.server/db";
-import * as unitModule from "../../../app/models/unit";
+import { findUnit } from "../../../app/models/unit";
 import { armyInputFactory } from "../../factories/army";
+import { userInputFactory } from "../../factories/user";
+import { baseShapeInputFactory } from "../../factories/baseShape";
 
 describe("find", () => {
   describe("when the unit exists", () => {
@@ -9,9 +11,14 @@ describe("find", () => {
     const unit = unitInputFactory.build();
 
     beforeEach(async () => {
-      const { id: baseShapeId } = await db.baseShape.findFirstOrThrow();
+      const { id: userId } = await db.user.create({
+        data: userInputFactory.build(),
+      });
       const { id: armyId } = await db.army.create({
-        data: armyInputFactory.build(),
+        data: armyInputFactory.build({ userId }),
+      });
+      const { id: baseShapeId } = await db.baseShape.create({
+        data: baseShapeInputFactory.build(),
       });
       unitId = (
         await db.unit.create({ data: { ...unit, baseShapeId, armyId } })
@@ -19,7 +26,7 @@ describe("find", () => {
     });
 
     it("returns the unit record", async () => {
-      expect(await unitModule.find(unitId)).toMatchObject(unit);
+      expect(await findUnit(unitId)).toMatchObject(unit);
     });
   });
 
@@ -28,7 +35,7 @@ describe("find", () => {
       expect.assertions(1);
 
       try {
-        await unitModule.find(-1);
+        await findUnit(-1);
       } catch (e) {
         expect((e as Error).message).toEqual("No Unit found");
       }

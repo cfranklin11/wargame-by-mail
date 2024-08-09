@@ -28,7 +28,11 @@ jobs:
       - name: Check formatting
         if: ${{ always() }}
         run: npm run format
+      - name: Run unit tests
+        run: npm run test:unit
       - uses: hoverkraft-tech/compose-action@v2.0.1
+      - name: Run integration tests
+        run: npm run test:integration
       - name: Run e2e tests
         id: e2e
         run: PORT=7357 npm run test:e2e:ci

@@ -12,11 +12,20 @@ import * as R from "ramda";
 import { ZodError } from "zod";
 
 import db, { BaseShape } from "~/.server/db";
-import { Button, FormField, PageHeading } from "~/components";
+import { Button, FormField, PageHeading, RecordTable } from "~/components";
 import { Input, Select, Textarea } from "@chakra-ui/react";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
-import { Unit, find as findUnit } from "~/models/unit";
-import { Army, find as findArmy } from "~/models/army";
+import {
+  Unit,
+  UnitWithMiniatures,
+  assertHasMiniatures,
+  findUnit,
+} from "~/models/unit";
+import { Army, findArmy } from "~/models/army";
+
+const TABLE_LABELS = {
+  name: "Name",
+};
 
 export const meta: MetaFunction = () => {
   return [
@@ -42,7 +51,8 @@ const fetchUnit = (params: Params<string>) =>
     R.prop("unitId"),
     R.tap((unitId) => invariant(typeof unitId === "string")),
     parseInt,
-    findUnit,
+    (unitId) => findUnit(unitId, { include: { miniatures: true } }),
+    R.andThen(R.tap(assertHasMiniatures)),
     R.andThen(R.objOf("unit")),
   )(params);
 
@@ -59,7 +69,10 @@ export function loader({ params }: LoaderFunctionArgs) {
     (params) =>
       Promise.all([fetchArmy(params), fetchBaseShapes(), fetchUnit(params)]),
     R.andThen(
-      R.mergeAll<{ army: Army }, [{ baseShapes: BaseShape[] }, { unit: Unit }]>,
+      R.mergeAll<
+        { army: Army },
+        [{ baseShapes: BaseShape[] }, { unit: UnitWithMiniatures }]
+      >,
     ),
     R.andThen(json),
   )(params);
@@ -146,6 +159,13 @@ export default function NewUnitPage() {
           Save
         </Button>
       </Form>
+      {unit.miniatures.length === 0 ? null : (
+        <RecordTable
+          columns={["name"]}
+          records={unit.miniatures}
+          labelMap={TABLE_LABELS}
+        />
+      )}
       <Link to={`/units/${unit.id}/miniatures/new`}>
         <Button>Add models</Button>
       </Link>

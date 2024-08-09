@@ -11,6 +11,7 @@ export const armyInputFactory = Factory.define<
     gameSystem: faker.commerce.department(),
     faction: faker.commerce.product(),
     description: faker.lorem.paragraph(),
+    userId: faker.number.int({ min: 1, max: 1000 }),
   };
 });
 

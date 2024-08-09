@@ -1,13 +1,30 @@
 import { z } from "zod";
 import isHexColor from "validator/lib/isHexColor";
-import db from "../.server/db";
+
+import db, { Unit } from "../.server/db";
+import { Miniature } from "./miniature";
+import { AssertionError } from "assert";
 
 export type { Unit } from "../.server/db";
+
+type FindUnitOptions = Omit<
+  Parameters<typeof db.unit.findUniqueOrThrow>[0],
+  "where"
+>;
+export type UnitWithMiniatures = Unit & { miniatures: Miniature[] };
 
 const SHORT_TEXT_LIMIT = 255;
 const LONG_TEXT_LIMIT = SHORT_TEXT_LIMIT * 4;
 const MIN_REQUIRED_TEXT = 1;
 const MIN_REQUIRED_NUMBER = 1;
+
+export function assertHasMiniatures(
+  unit: Unit | UnitWithMiniatures,
+): asserts unit is UnitWithMiniatures {
+  if ((unit as UnitWithMiniatures).miniatures === undefined) {
+    throw new AssertionError();
+  }
+}
 
 const shortTextValidations = z
   .string()
@@ -26,10 +43,10 @@ const UnitInput = z.object({
   color: z.string().refine(isHexColor, "Color must be a hex color code."),
 });
 
-export function validate(army: unknown) {
-  return UnitInput.parseAsync(army);
+export function validateUnit(unit: unknown) {
+  return UnitInput.parseAsync(unit);
 }
 
-export function find(id: number) {
-  return db.unit.findUniqueOrThrow({ where: { id } });
+export function findUnit(id: number, options?: FindUnitOptions) {
+  return db.unit.findUniqueOrThrow({ ...options, where: { id } });
 }

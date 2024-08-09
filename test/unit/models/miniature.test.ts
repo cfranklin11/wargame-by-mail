@@ -2,7 +2,7 @@ import * as R from "ramda";
 import { ZodError } from "zod";
 
 import { miniatureInputFactory } from "../../factories/miniature";
-import * as miniatureModel from "../../../app/models/miniature";
+import { validateMiniature } from "../../../app/models/miniature";
 
 describe("validate", () => {
   const validMiniatureInput = miniatureInputFactory.build();
@@ -11,7 +11,7 @@ describe("validate", () => {
     const miniature = validMiniatureInput;
 
     it("returns the miniature object", async () => {
-      expect(await miniatureModel.validate(miniature)).toEqual(miniature);
+      expect(await validateMiniature(miniature)).toEqual(miniature);
     });
   });
 
@@ -26,7 +26,7 @@ describe("validate", () => {
       expect.assertions(1);
 
       try {
-        await miniatureModel.validate(miniature);
+        await validateMiniature(miniature);
       } catch (error) {
         expect((error as ZodError).issues).toEqual(
           expect.arrayContaining([
@@ -47,7 +47,7 @@ describe("validate", () => {
       expect.assertions(1);
 
       try {
-        await miniatureModel.validate(miniature);
+        await validateMiniature(miniature);
       } catch (error) {
         expect((error as ZodError).issues).toEqual(
           expect.arrayContaining([
@@ -68,7 +68,7 @@ describe("validate", () => {
       expect.assertions(1);
 
       try {
-        await miniatureModel.validate(miniature);
+        await validateMiniature(miniature);
       } catch (error) {
         expect((error as ZodError).issues).toEqual(
           expect.arrayContaining([

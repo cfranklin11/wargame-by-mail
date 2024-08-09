@@ -1,4 +1,3 @@
-import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Container,
   Input,
@@ -6,12 +5,6 @@ import {
   VStack,
   Select,
   Textarea,
-  TableContainer,
-  Table,
-  Tr,
-  Tbody,
-  Td,
-  IconButton,
   Divider,
 } from "@chakra-ui/react";
 import {
@@ -32,6 +25,7 @@ import {
   PageHeading,
   FormField,
   Button,
+  RecordTable,
 } from "~/components";
 import { convertToModelData } from "~/utils/form";
 
@@ -39,6 +33,7 @@ const INCHES_PER_FOOT = 12;
 const BOARD_WIDTH_IN = 6 * INCHES_PER_FOOT;
 const BOARD_HEIGHT_IN = 4 * INCHES_PER_FOOT;
 const MIN_TABLE_HEIGHT = "55vh";
+const TABLE_LABELS = { name: "Name" };
 
 export const meta: MetaFunction = () => {
   return [
@@ -157,7 +152,7 @@ export default function NewTerrain() {
             </FormField>
             <Button type="submit">Add terrain</Button>
           </Form>
-          {terrains.length ? (
+          {terrains.length === 0 ? null : (
             <>
               <Divider
                 marginTop="2rem"
@@ -165,33 +160,13 @@ export default function NewTerrain() {
                 borderBottomColor="gray"
                 borderBottomWidth="0.125rem"
               />
-              <TableContainer>
-                <Table>
-                  <Tbody>
-                    {terrains.map(({ id, name }) => (
-                      <Tr key={id}>
-                        <Td>{name}</Td>
-                        <Td textAlign="right" paddingRight="0.25rem">
-                          <IconButton
-                            aria-label="Edit"
-                            icon={<EditIcon boxSize={{ base: 6 }} />}
-                            padding="1rem"
-                          ></IconButton>
-                        </Td>
-                        <Td paddingLeft="0.25rem">
-                          <IconButton
-                            aria-label="Delete"
-                            icon={<DeleteIcon boxSize={{ base: 6 }} />}
-                            padding="1rem"
-                          ></IconButton>
-                        </Td>
-                      </Tr>
-                    ))}
-                  </Tbody>
-                </Table>
-              </TableContainer>
+              <RecordTable
+                columns={["name"]}
+                records={terrains}
+                labelMap={TABLE_LABELS}
+              />
             </>
-          ) : null}
+          )}
           <Link to={`/games/${gameId}/play`}>
             <Button marginTop="1rem" marginBottom="1rem">
               Start game

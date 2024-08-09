@@ -13,9 +13,13 @@ import { ZodError } from "zod";
 import invariant from "tiny-invariant";
 
 import db from "~/.server/db";
-import { Button, FormField, PageHeading } from "~/components";
+import { Button, FormField, PageHeading, RecordTable } from "~/components";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
-import { Army, find as findArmy } from "~/models/army";
+import { Army, assertHasUnits, findArmy } from "~/models/army";
+
+const TABLE_LABELS = {
+  name: "Name",
+};
 
 export const meta: MetaFunction = () => {
   return [
@@ -32,7 +36,8 @@ const fetchArmy = (params: Params<string>) =>
     R.prop("armyId"),
     R.tap((armyId) => invariant(typeof armyId === "string")),
     parseInt,
-    findArmy,
+    (armyId) => findArmy(armyId, { include: { units: true } }),
+    R.andThen(R.tap(assertHasUnits)),
     R.andThen(R.objOf("army")),
   )(params);
 
@@ -85,11 +90,18 @@ export default function EditArmyPage() {
         <Input type="hidden" name="armyId" value={army.id} />
         <Button type="submit">Save</Button>
       </Form>
+      {army.units.length === 0 ? null : (
+        <RecordTable
+          columns={["name"]}
+          records={army.units}
+          labelMap={TABLE_LABELS}
+        />
+      )}
       <Link to={`/armies/${army.id}/units/new`}>
         <Button>Add units</Button>
       </Link>
-      <Link to="/account">
-        <Button>Back to account</Button>
+      <Link to="/armies/list">
+        <Button>Back to armies</Button>
       </Link>
     </>
   );

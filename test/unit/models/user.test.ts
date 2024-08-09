@@ -3,7 +3,7 @@ import { ZodError } from "zod";
 import { PrismaClient } from "@prisma/client";
 
 import { userInputFactory, userFactory } from "../../factories/user";
-import * as userModel from "../../../app/models/user";
+import { validateUser } from "../../../app/models/user";
 
 describe("validate", () => {
   const prisma = new PrismaClient();
@@ -19,7 +19,7 @@ describe("validate", () => {
     });
 
     it("returns the user object", async () => {
-      expect(await userModel.validate(prisma, user)).toEqual(user);
+      expect(await validateUser(prisma, user)).toEqual(user);
     });
   });
 
@@ -41,7 +41,7 @@ describe("validate", () => {
       expect.assertions(1);
 
       try {
-        await userModel.validate(prisma, user);
+        await validateUser(prisma, user);
       } catch (error) {
         expect((error as ZodError).issues).toEqual(
           expect.arrayContaining([
@@ -69,7 +69,7 @@ describe("validate", () => {
       expect.assertions(1);
 
       try {
-        await userModel.validate(prisma, user);
+        await validateUser(prisma, user);
       } catch (error) {
         expect((error as ZodError).issues).toEqual(
           expect.arrayContaining([
@@ -95,7 +95,7 @@ describe("validate", () => {
       expect.assertions(1);
 
       try {
-        await userModel.validate(prisma, user);
+        await validateUser(prisma, user);
       } catch (error) {
         expect((error as ZodError).issues).toEqual(
           expect.arrayContaining([
@@ -123,7 +123,7 @@ describe("validate", () => {
       expect.assertions(1);
 
       try {
-        await userModel.validate(prisma, user);
+        await validateUser(prisma, user);
       } catch (error) {
         expect((error as ZodError).issues).toEqual(
           expect.arrayContaining([
