@@ -25,9 +25,6 @@ export default function AccountPage() {
       <Link to={"/armies/list"}>
         <Button>Your armies</Button>
       </Link>
-      <Link to={"/armies/new"}>
-        <Button>Build an army</Button>
-      </Link>
     </>
   );
 }
