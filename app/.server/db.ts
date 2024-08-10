@@ -57,6 +57,10 @@ const db = new PrismaClient().$extends({
         await Promise.all(wrap(args.data).map(validateArmy));
         return query(args);
       },
+      update: async ({ args, query }) => {
+        await validateArmy(args.data);
+        return query(args);
+      },
     },
     unit: {
       create: async ({ args, query }) => {
@@ -67,6 +71,10 @@ const db = new PrismaClient().$extends({
         await Promise.all(wrap(args.data).map(validateUnit));
         return query(args);
       },
+      update: async ({ args, query }) => {
+        await validateUnit(args.data);
+        return query(args);
+      },
     },
     miniature: {
       create: async ({ args, query }) => {
@@ -75,6 +83,10 @@ const db = new PrismaClient().$extends({
       },
       createMany: async ({ args, query }) => {
         await Promise.all(wrap(args.data).map(validateMiniature));
+        return query(args);
+      },
+      update: async ({ args, query }) => {
+        await validateMiniature(args.data);
         return query(args);
       },
     },
