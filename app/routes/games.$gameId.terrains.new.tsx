@@ -84,7 +84,7 @@ export default function NewTerrain() {
           {() => <TableTop minHeight={MIN_TABLE_HEIGHT} />}
         </ClientOnly>
         <Box marginBottom="1rem" overflow="scroll" maxHeight="34vh">
-          <Form method="post" reloadDocument>
+          <Form method="post">
             <FormField isRequired label="Name">
               <Input type="text" name="name" />
             </FormField>

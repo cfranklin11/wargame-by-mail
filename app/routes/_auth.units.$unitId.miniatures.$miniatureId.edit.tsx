@@ -18,9 +18,6 @@ import { convertToModelData, formatValidationErrors } from "~/utils/form";
 import { Miniature, findMiniature } from "~/models/miniature";
 import { Unit, findUnit } from "~/models/unit";
 
-type FormErrors = Partial<Record<keyof Miniature, string[]>>;
-const EMPTY_FORM_ERRORS: FormErrors = {};
-
 export const meta: MetaFunction = () => {
   return [
     { title: "Wargame by Mail: Edit models in your unit" },
@@ -49,9 +46,9 @@ const fetchMiniature = (params: Params<string>) =>
     R.andThen(R.objOf("miniature")),
   )(params);
 
-const prepareUpdateParams = (miniature: Miniature) => ({
-  where: { id: miniature.id },
-  data: miniature,
+const prepareUpdateParams = ({ id, ...data }: Miniature) => ({
+  where: { id },
+  data,
 });
 
 export function loader({ params }: LoaderFunctionArgs) {
@@ -70,7 +67,8 @@ export async function action({ request }: ActionFunctionArgs) {
       R.andThen(prepareUpdateParams),
       R.andThen(db.miniature.update),
     )(request);
-    return json({ errors: EMPTY_FORM_ERRORS });
+
+    return null;
   } catch (error) {
     if (error instanceof ZodError) {
       return R.pipe(formatValidationErrors, R.objOf("errors"), json)(error);
@@ -109,8 +107,7 @@ export default function NewUnitPage() {
             defaultValue={miniature.count}
           />
         </FormField>
-        <Input type="hidden" name="unitId" value={unit.id} />
-        <Input type="hidden" name="miniatureId" value={miniature.id} />
+        <Input type="hidden" name="id" value={miniature.id} />
         <Button type="submit">Save</Button>
       </Form>
       <Link to={`/armies/${unit.armyId}/units/${unit.id}/edit`}>

@@ -64,11 +64,6 @@ const fetchUnit = (params: Params<string>) =>
 const fetchBaseShapes = () =>
   R.pipe(db.baseShape.findMany, R.andThen(R.objOf("baseShapes")))();
 
-const prepareUpdateParams = (unit: Unit) => ({
-  where: { id: unit.id },
-  data: unit,
-});
-
 export function loader({ params }: LoaderFunctionArgs) {
   return R.pipe(
     (params) =>
@@ -83,6 +78,14 @@ export function loader({ params }: LoaderFunctionArgs) {
   )(params);
 }
 
+const prepareUpdateParams = ({ id, baseShapeId, ...unit }: Unit) => ({
+  where: { id },
+  data: {
+    ...unit,
+    baseShapeId,
+  },
+});
+
 export async function action({ request }: ActionFunctionArgs) {
   try {
     await R.pipe(
@@ -91,6 +94,8 @@ export async function action({ request }: ActionFunctionArgs) {
       R.andThen(prepareUpdateParams),
       R.andThen(db.unit.update),
     )(request);
+
+    return null;
   } catch (error) {
     if (error instanceof ZodError) {
       return R.pipe(formatValidationErrors, R.objOf("errors"), json)(error);
@@ -124,7 +129,7 @@ export default function NewUnitPage() {
   return (
     <>
       <PageHeading>Edit {unit.name}</PageHeading>
-      <Form method="post" reloadDocument>
+      <Form method="post">
         <FormField isRequired label="Name" errors={errors?.name}>
           <Input type="text" name="name" defaultValue={unit.name} />
         </FormField>
@@ -175,11 +180,8 @@ export default function NewUnitPage() {
         <FormField isRequired label="Model color" errors={errors?.color}>
           <Input type="color" name="color" defaultValue={unit.color} />
         </FormField>
-        <Input type="hidden" name="armyId" value={army.id} />
-        <Input type="hidden" name="unitId" value={unit.id} />
-        <Button type="submit" value="save" name="submit">
-          Save
-        </Button>
+        <Input type="hidden" name="id" value={unit.id} />
+        <Button type="submit">Save</Button>
       </Form>
       {unit.miniatures.length === 0 ? null : (
         <RecordTable

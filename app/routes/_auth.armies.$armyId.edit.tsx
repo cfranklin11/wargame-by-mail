@@ -46,9 +46,9 @@ const fetchArmy = (params: Params<string>) =>
     R.andThen(R.objOf("army")),
   )(params);
 
-const prepareUpdateParams = (army: Army) => ({
-  where: { id: army.id },
-  data: army,
+const prepareUpdateParams = ({ id, ...data }: Army) => ({
+  where: { id },
+  data,
 });
 
 export function loader({ params }: LoaderFunctionArgs) {
@@ -63,6 +63,8 @@ export async function action({ request }: ActionFunctionArgs) {
       R.andThen(prepareUpdateParams),
       R.andThen(db.army.update),
     )(request);
+
+    return null;
   } catch (error) {
     if (error instanceof ZodError) {
       return R.pipe(formatValidationErrors, R.objOf("errors"), json)(error);
@@ -96,7 +98,7 @@ export default function EditArmyPage() {
   return (
     <>
       <PageHeading>Edit {army.name}</PageHeading>
-      <Form method="post" reloadDocument>
+      <Form method="post">
         <FormField isRequired label="Name" errors={errors?.name}>
           <Input type="text" name="name" defaultValue={army.name} />
         </FormField>
@@ -109,7 +111,7 @@ export default function EditArmyPage() {
         <FormField label="Description" errors={errors?.description}>
           <Textarea name="description" defaultValue={army.description} />
         </FormField>
-        <Input type="hidden" name="armyId" value={army.id} />
+        <Input type="hidden" name="id" value={army.id} />
         <Button type="submit">Save</Button>
       </Form>
       {army.units.length === 0 ? null : (
