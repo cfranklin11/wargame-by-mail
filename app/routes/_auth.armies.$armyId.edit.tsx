@@ -101,13 +101,13 @@ export default function EditArmyPage() {
           <Input type="text" name="name" defaultValue={army.name} />
         </FormField>
         <FormField isRequired label="Game system" errors={errors?.gameSystem}>
-          <Input type="text" name="gameSystem" defaultValue={army.name} />
+          <Input type="text" name="gameSystem" defaultValue={army.gameSystem} />
         </FormField>
         <FormField isRequired label="Faction" errors={errors?.faction}>
-          <Input type="text" name="faction" defaultValue={army.name} />
+          <Input type="text" name="faction" defaultValue={army.faction} />
         </FormField>
         <FormField label="Description" errors={errors?.description}>
-          <Textarea name="description" defaultValue={army.name} />
+          <Textarea name="description" defaultValue={army.description} />
         </FormField>
         <Input type="hidden" name="armyId" value={army.id} />
         <Button type="submit">Save</Button>
