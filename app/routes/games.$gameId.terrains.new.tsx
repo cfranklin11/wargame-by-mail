@@ -33,7 +33,7 @@ const INCHES_PER_FOOT = 12;
 const BOARD_WIDTH_IN = 6 * INCHES_PER_FOOT;
 const BOARD_HEIGHT_IN = 4 * INCHES_PER_FOOT;
 const MIN_TABLE_HEIGHT = "55vh";
-const TABLE_LABELS = { name: "Name" };
+const TABLE_COLUMNS = [{ key: "name", label: "Name" }];
 
 export const meta: MetaFunction = () => {
   return [
@@ -160,11 +160,7 @@ export default function NewTerrain() {
                 borderBottomColor="gray"
                 borderBottomWidth="0.125rem"
               />
-              <RecordTable
-                columns={["name"]}
-                records={terrains}
-                labelMap={TABLE_LABELS}
-              />
+              <RecordTable columns={TABLE_COLUMNS} records={terrains} />
             </>
           )}
           <Link to={`/games/${gameId}/play`}>

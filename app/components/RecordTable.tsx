@@ -11,28 +11,31 @@ import {
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 
 type RecordItem = Record<string, string | number> & { id: number };
+interface Column {
+  key: string;
+  label: string;
+}
 interface Props {
-  columns: string[];
+  columns: Column[];
   records: RecordItem[];
-  labelMap: Record<string, string>;
 }
 
-export default function RecordTable({ columns, records, labelMap }: Props) {
+export default function RecordTable({ columns, records }: Props) {
   return (
     <TableContainer>
       <Table>
         <Thead>
           <Tr>
-            {columns.map((column) => (
-              <Th key={column}>{labelMap[column]}</Th>
+            {columns.map(({ key, label }) => (
+              <Th key={key}>{label}</Th>
             ))}
           </Tr>
         </Thead>
         <Tbody>
           {records.map((record) => (
             <Tr key={record.id}>
-              {columns.map((column) => (
-                <Td key={column}>{record[column]}</Td>
+              {columns.map(({ key }) => (
+                <Td key={key}>{record[key]}</Td>
               ))}
               <Td textAlign="right" paddingRight="0.25rem">
                 <IconButton

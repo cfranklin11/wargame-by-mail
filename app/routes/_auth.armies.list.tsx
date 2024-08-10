@@ -6,11 +6,11 @@ import { PageHeading, Button, RecordTable } from "~/components";
 import { authenticator } from "~/.server/auth";
 import db from "~/.server/db";
 
-const TABLE_LABELS = {
-  name: "Name",
-  gameSystem: "Game",
-  faction: "Faction",
-};
+const TABLE_COLUMNS = [
+  { key: "name", label: "Name" },
+  { key: "gameSystem", label: "Game" },
+  { key: "faction", label: "Faction" },
+];
 
 export const meta: MetaFunction = () => {
   return [
@@ -44,11 +44,7 @@ export default function ArmiesPage() {
     <>
       <PageHeading>Your armies</PageHeading>
       {armies.length === 0 ? null : (
-        <RecordTable
-          columns={["name", "gameSystem", "faction"]}
-          records={armies}
-          labelMap={TABLE_LABELS}
-        />
+        <RecordTable columns={TABLE_COLUMNS} records={armies} />
       )}
       <Link to={"/armies/new"}>
         <Button>Build an army</Button>

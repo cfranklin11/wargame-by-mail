@@ -17,9 +17,7 @@ import { Button, FormField, PageHeading, RecordTable } from "~/components";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
 import { Army, assertHasUnits, findArmy } from "~/models/army";
 
-const TABLE_LABELS = {
-  name: "Name",
-};
+const TABLE_COLUMNS = [{ key: "name", label: "Name" }];
 
 export const meta: MetaFunction = () => {
   return [
@@ -91,11 +89,7 @@ export default function EditArmyPage() {
         <Button type="submit">Save</Button>
       </Form>
       {army.units.length === 0 ? null : (
-        <RecordTable
-          columns={["name"]}
-          records={army.units}
-          labelMap={TABLE_LABELS}
-        />
+        <RecordTable columns={TABLE_COLUMNS} records={army.units} />
       )}
       <Link to={`/armies/${army.id}/units/new`}>
         <Button>Add units</Button>

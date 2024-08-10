@@ -23,9 +23,7 @@ import {
 } from "~/models/unit";
 import { Army, findArmy } from "~/models/army";
 
-const TABLE_LABELS = {
-  name: "Name",
-};
+const TABLE_COLUMNS = [{ key: "name", label: "Name" }];
 
 export const meta: MetaFunction = () => {
   return [
@@ -160,11 +158,7 @@ export default function NewUnitPage() {
         </Button>
       </Form>
       {unit.miniatures.length === 0 ? null : (
-        <RecordTable
-          columns={["name"]}
-          records={unit.miniatures}
-          labelMap={TABLE_LABELS}
-        />
+        <RecordTable columns={TABLE_COLUMNS} records={unit.miniatures} />
       )}
       <Link to={`/units/${unit.id}/miniatures/new`}>
         <Button>Add models</Button>
