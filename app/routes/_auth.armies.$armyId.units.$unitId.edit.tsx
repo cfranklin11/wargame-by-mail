@@ -12,7 +12,13 @@ import * as R from "ramda";
 import { ZodError } from "zod";
 
 import db, { BaseShape } from "~/.server/db";
-import { Button, FormField, PageHeading, RecordTable } from "~/components";
+import {
+  Button,
+  FormField,
+  IconButton,
+  PageHeading,
+  RecordTable,
+} from "~/components";
 import { Input, Select, Textarea } from "@chakra-ui/react";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
 import {
@@ -22,6 +28,7 @@ import {
   findUnit,
 } from "~/models/unit";
 import { Army, findArmy } from "~/models/army";
+import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 
 const TABLE_COLUMNS = [{ key: "name", label: "Name" }];
 
@@ -93,6 +100,23 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
+const defineEditButton = (unitId: number) => {
+  const EditButton = (miniatureId: number) => (
+    <Link to={`/units/${unitId}/miniatures/${miniatureId}/edit`}>
+      <IconButton label="Edit" Icon={EditIcon}></IconButton>
+    </Link>
+  );
+  return EditButton;
+};
+const defineDeleteButton = (unitId: number) => {
+  const DeleteButton = (miniatureId: number) => (
+    <Link to={`/units/${unitId}/miniatures/${miniatureId}/delete`}>
+      <IconButton label="Delete" Icon={DeleteIcon}></IconButton>
+    </Link>
+  );
+  return DeleteButton;
+};
+
 export default function NewUnitPage() {
   const { army, baseShapes, unit } = useLoaderData<typeof loader>();
   const { errors } = useActionData<typeof action>() || {};
@@ -158,7 +182,11 @@ export default function NewUnitPage() {
         </Button>
       </Form>
       {unit.miniatures.length === 0 ? null : (
-        <RecordTable columns={TABLE_COLUMNS} records={unit.miniatures} />
+        <RecordTable
+          columns={TABLE_COLUMNS}
+          records={unit.miniatures}
+          buttons={[defineEditButton(unit.id), defineDeleteButton(unit.id)]}
+        />
       )}
       <Link to={`/units/${unit.id}/miniatures/new`}>
         <Button>Add models</Button>

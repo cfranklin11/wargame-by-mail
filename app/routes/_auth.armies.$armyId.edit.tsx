@@ -13,9 +13,16 @@ import { ZodError } from "zod";
 import invariant from "tiny-invariant";
 
 import db from "~/.server/db";
-import { Button, FormField, PageHeading, RecordTable } from "~/components";
+import {
+  Button,
+  FormField,
+  IconButton,
+  PageHeading,
+  RecordTable,
+} from "~/components";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
 import { Army, assertHasUnits, findArmy } from "~/models/army";
+import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 
 const TABLE_COLUMNS = [{ key: "name", label: "Name" }];
 
@@ -65,6 +72,23 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
+const defineEditButton = (armyId: number) => {
+  const EditButton = (unitId: number) => (
+    <Link to={`/armies/${armyId}/units/${unitId}/edit`}>
+      <IconButton label="Edit" Icon={EditIcon}></IconButton>
+    </Link>
+  );
+  return EditButton;
+};
+const defineDeleteButton = (armyId: number) => {
+  const DeleteButton = (unitId: number) => (
+    <Link to={`/armies/${armyId}/units/${unitId}/delete`}>
+      <IconButton label="Delete" Icon={DeleteIcon}></IconButton>
+    </Link>
+  );
+  return DeleteButton;
+};
+
 export default function EditArmyPage() {
   const { errors } = useActionData<typeof action>() || {};
   const { army } = useLoaderData<typeof loader>();
@@ -89,7 +113,11 @@ export default function EditArmyPage() {
         <Button type="submit">Save</Button>
       </Form>
       {army.units.length === 0 ? null : (
-        <RecordTable columns={TABLE_COLUMNS} records={army.units} />
+        <RecordTable
+          columns={TABLE_COLUMNS}
+          records={army.units}
+          buttons={[defineEditButton(army.id), defineDeleteButton(army.id)]}
+        />
       )}
       <Link to={`/armies/${army.id}/units/new`}>
         <Button>Add units</Button>

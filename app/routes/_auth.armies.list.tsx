@@ -5,6 +5,8 @@ import * as R from "ramda";
 import { PageHeading, Button, RecordTable } from "~/components";
 import { authenticator } from "~/.server/auth";
 import db from "~/.server/db";
+import IconButton from "~/components/IconButton";
+import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 
 const TABLE_COLUMNS = [
   { key: "name", label: "Name" },
@@ -37,6 +39,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
   )(request);
 }
 
+const EditButton = (armyId: number) => (
+  <Link to={`/armies/${armyId}/edit`}>
+    <IconButton label="Edit" Icon={EditIcon}></IconButton>
+  </Link>
+);
+const DeleteButton = (armyId: number) => (
+  <Link to={`/armies/${armyId}/delete`}>
+    <IconButton label="Delete" Icon={DeleteIcon}></IconButton>
+  </Link>
+);
+
 export default function ArmiesPage() {
   const { armies } = useLoaderData<typeof loader>();
 
@@ -44,7 +57,11 @@ export default function ArmiesPage() {
     <>
       <PageHeading>Your armies</PageHeading>
       {armies.length === 0 ? null : (
-        <RecordTable columns={TABLE_COLUMNS} records={armies} />
+        <RecordTable
+          columns={TABLE_COLUMNS}
+          records={armies}
+          buttons={[EditButton, DeleteButton]}
+        />
       )}
       <Link to={"/armies/new"}>
         <Button>Build an army</Button>

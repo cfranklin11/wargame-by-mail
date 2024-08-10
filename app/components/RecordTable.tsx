@@ -1,5 +1,4 @@
 import {
-  IconButton,
   Table,
   TableContainer,
   Tbody,
@@ -8,7 +7,6 @@ import {
   Thead,
   Tr,
 } from "@chakra-ui/react";
-import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 
 type RecordItem = Record<string, string | number> & { id: number };
 interface Column {
@@ -18,9 +16,10 @@ interface Column {
 interface Props {
   columns: Column[];
   records: RecordItem[];
+  buttons?: ((id: number) => JSX.Element)[];
 }
 
-export default function RecordTable({ columns, records }: Props) {
+export default function RecordTable({ columns, records, buttons }: Props) {
   return (
     <TableContainer>
       <Table>
@@ -29,6 +28,7 @@ export default function RecordTable({ columns, records }: Props) {
             {columns.map(({ key, label }) => (
               <Th key={key}>{label}</Th>
             ))}
+            {buttons?.map((_, idx) => <Th key={idx}></Th>)}
           </Tr>
         </Thead>
         <Tbody>
@@ -37,20 +37,9 @@ export default function RecordTable({ columns, records }: Props) {
               {columns.map(({ key }) => (
                 <Td key={key}>{record[key]}</Td>
               ))}
-              <Td textAlign="right" paddingRight="0.25rem">
-                <IconButton
-                  aria-label="Edit"
-                  icon={<EditIcon boxSize={{ base: 6 }} />}
-                  padding="1rem"
-                ></IconButton>
-              </Td>
-              <Td paddingLeft="0.25rem">
-                <IconButton
-                  aria-label="Delete"
-                  icon={<DeleteIcon boxSize={{ base: 6 }} />}
-                  padding="1rem"
-                ></IconButton>
-              </Td>
+              {buttons?.map((button, idx) => (
+                <Td key={idx}>{button(record.id)}</Td>
+              ))}
             </Tr>
           ))}
         </Tbody>
