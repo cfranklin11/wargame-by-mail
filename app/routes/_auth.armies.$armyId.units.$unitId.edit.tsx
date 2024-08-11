@@ -7,7 +7,6 @@ import {
   useActionData,
   useLoaderData,
 } from "@remix-run/react";
-import invariant from "tiny-invariant";
 import * as R from "ramda";
 import { ZodError } from "zod";
 
@@ -29,6 +28,7 @@ import {
 } from "~/models/unit";
 import { Army, findArmy } from "~/models/army";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { idFromParams } from "~/utils/request";
 
 const TABLE_COLUMNS = [{ key: "name", label: "Name" }];
 
@@ -43,19 +43,11 @@ export const meta: MetaFunction = () => {
 };
 
 const fetchArmy = (params: Params<string>) =>
-  R.pipe(
-    R.prop("armyId"),
-    R.tap((armyId) => invariant(typeof armyId === "string")),
-    parseInt,
-    findArmy,
-    R.andThen(R.objOf("army")),
-  )(params);
+  R.pipe(idFromParams("armyId"), findArmy, R.andThen(R.objOf("army")))(params);
 
 const fetchUnit = (params: Params<string>) =>
   R.pipe(
-    R.prop("unitId"),
-    R.tap((unitId) => invariant(typeof unitId === "string")),
-    parseInt,
+    idFromParams("unitId"),
     (unitId) => findUnit(unitId, { include: { miniatures: true } }),
     R.andThen(R.tap(assertHasMiniatures)),
     R.andThen(R.objOf("unit")),

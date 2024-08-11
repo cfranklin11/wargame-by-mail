@@ -7,7 +7,6 @@ import {
   useActionData,
   useLoaderData,
 } from "@remix-run/react";
-import invariant from "tiny-invariant";
 import * as R from "ramda";
 import { Input, Textarea } from "@chakra-ui/react";
 import { ZodError } from "zod";
@@ -17,6 +16,7 @@ import { Button, FormField, PageHeading } from "~/components";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
 import { Miniature, findMiniature } from "~/models/miniature";
 import { Unit, findUnit } from "~/models/unit";
+import { idFromParams } from "~/utils/request";
 
 export const meta: MetaFunction = () => {
   return [
@@ -29,19 +29,11 @@ export const meta: MetaFunction = () => {
 };
 
 const fetchUnit = (params: Params<string>) =>
-  R.pipe(
-    R.prop("unitId"),
-    R.tap((unitId) => invariant(typeof unitId === "string")),
-    parseInt,
-    findUnit,
-    R.andThen(R.objOf("unit")),
-  )(params);
+  R.pipe(idFromParams("unitId"), findUnit, R.andThen(R.objOf("unit")))(params);
 
 const fetchMiniature = (params: Params<string>) =>
   R.pipe(
-    R.prop("miniatureId"),
-    R.tap((miniatureId) => invariant(typeof miniatureId === "string")),
-    parseInt,
+    idFromParams("miniatureId"),
     findMiniature,
     R.andThen(R.objOf("miniature")),
   )(params);

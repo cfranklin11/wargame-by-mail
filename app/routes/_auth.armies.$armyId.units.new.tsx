@@ -8,7 +8,6 @@ import {
   useActionData,
   useLoaderData,
 } from "@remix-run/react";
-import invariant from "tiny-invariant";
 import * as R from "ramda";
 import { ZodError } from "zod";
 
@@ -18,6 +17,7 @@ import { Input, Select, Textarea } from "@chakra-ui/react";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
 import { Unit } from "~/models/unit";
 import { Army } from "~/models/army";
+import { idFromParams } from "~/utils/request";
 
 export const meta: MetaFunction = () => {
   return [
@@ -31,9 +31,7 @@ export const meta: MetaFunction = () => {
 
 const fetchArmy = (params: Params<string>) =>
   R.pipe(
-    R.prop("armyId"),
-    R.tap((armyId) => invariant(typeof armyId === "string")),
-    parseInt,
+    idFromParams("armyId"),
     R.objOf("id"),
     R.objOf("where"),
     db.army.findUniqueOrThrow,

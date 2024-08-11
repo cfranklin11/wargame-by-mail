@@ -8,7 +8,6 @@ import {
   useActionData,
   useLoaderData,
 } from "@remix-run/react";
-import invariant from "tiny-invariant";
 import * as R from "ramda";
 import { Input, Textarea } from "@chakra-ui/react";
 import { ZodError } from "zod";
@@ -18,6 +17,7 @@ import { Button, FormField, PageHeading } from "~/components";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
 import { Miniature } from "~/models/miniature";
 import { findUnit } from "~/models/unit";
+import { idFromParams } from "~/utils/request";
 
 export const meta: MetaFunction = () => {
   return [
@@ -30,13 +30,7 @@ export const meta: MetaFunction = () => {
 };
 
 const fetchUnit = (params: Params<string>) =>
-  R.pipe(
-    R.prop("unitId"),
-    R.tap((unitId) => invariant(typeof unitId === "string")),
-    parseInt,
-    findUnit,
-    R.andThen(R.objOf("unit")),
-  )(params);
+  R.pipe(idFromParams("unitId"), findUnit, R.andThen(R.objOf("unit")))(params);
 
 export function loader({ params }: LoaderFunctionArgs) {
   return R.pipe(fetchUnit, R.andThen(json))(params);

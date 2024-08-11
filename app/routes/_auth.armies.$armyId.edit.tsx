@@ -10,7 +10,6 @@ import {
 } from "@remix-run/react";
 import * as R from "ramda";
 import { ZodError } from "zod";
-import invariant from "tiny-invariant";
 
 import db from "~/.server/db";
 import {
@@ -23,6 +22,7 @@ import {
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
 import { Army, assertHasUnits, findArmy } from "~/models/army";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { idFromParams } from "~/utils/request";
 
 const TABLE_COLUMNS = [{ key: "name", label: "Name" }];
 
@@ -38,9 +38,7 @@ export const meta: MetaFunction = () => {
 
 const fetchArmy = (params: Params<string>) =>
   R.pipe(
-    R.prop("armyId"),
-    R.tap((armyId) => invariant(typeof armyId === "string")),
-    parseInt,
+    idFromParams("armyId"),
     (armyId) => findArmy(armyId, { include: { units: true } }),
     R.andThen(R.tap(assertHasUnits)),
     R.andThen(R.objOf("army")),
