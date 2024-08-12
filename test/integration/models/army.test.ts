@@ -3,7 +3,7 @@ import db from "../../../app/.server/db";
 import { findArmy, Army } from "../../../app/models/army";
 import { userInputFactory } from "../../factories/user";
 
-describe("find", () => {
+describe("findArmy", () => {
   describe("when the army exists", () => {
     let army: Army;
 
@@ -22,14 +22,8 @@ describe("find", () => {
   });
 
   describe("when the army doesn't exist", () => {
-    it("throws an error", async () => {
-      expect.assertions(1);
-
-      try {
-        await findArmy(-1);
-      } catch (e) {
-        expect((e as Error).message).toEqual("No Army found");
-      }
+    it("returns null", async () => {
+      expect(await findArmy(-1)).toBeNull();
     });
   });
 });

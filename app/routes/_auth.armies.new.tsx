@@ -28,16 +28,16 @@ export const meta: MetaFunction = () => {
 
 export async function action({ request }: ActionFunctionArgs) {
   try {
-    const { id } = await authenticator.isAuthenticated(request, {
+    const { id: userId } = await authenticator.isAuthenticated(request, {
       failureRedirect: "/login",
     });
     return await R.pipe(
       R.invoker(0, "formData"),
       R.andThen(convertToModelData),
-      R.andThen(R.mergeLeft({ userId: id }))<Army>,
+      R.andThen(R.mergeLeft({ userId }))<Army>,
       R.andThen(R.objOf("data")),
       R.andThen(db.army.create),
-      R.andThen((army) => redirect(`/armies/${army.id}/edit`)),
+      R.andThen((army: Army) => redirect(`/armies/${army.id}/edit`)),
     )(request);
   } catch (error) {
     if (error instanceof ZodError) {

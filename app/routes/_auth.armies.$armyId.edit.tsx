@@ -1,12 +1,11 @@
 import { Input, Textarea } from "@chakra-ui/react";
-import { ActionFunctionArgs, json, LoaderFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, json } from "@remix-run/node";
 import {
   Form,
   Link,
   MetaFunction,
   useActionData,
-  Params,
-  useLoaderData,
+  useOutletContext,
 } from "@remix-run/react";
 import * as R from "ramda";
 import { ZodError } from "zod";
@@ -20,9 +19,8 @@ import {
   RecordTable,
 } from "~/components";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
-import { Army, assertHasUnits, findArmy } from "~/models/army";
+import { Army, ArmyWithUnits } from "~/models/army";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
-import { idFromParams } from "~/utils/request";
 
 const TABLE_COLUMNS = [{ key: "name", label: "Name" }];
 
@@ -36,22 +34,10 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-const fetchArmy = (params: Params<string>) =>
-  R.pipe(
-    idFromParams("armyId"),
-    (armyId) => findArmy(armyId, { include: { units: true } }),
-    R.andThen(R.tap(assertHasUnits)),
-    R.andThen(R.objOf("army")),
-  )(params);
-
 const prepareUpdateParams = ({ id, ...data }: Army) => ({
   where: { id },
   data,
 });
-
-export function loader({ params }: LoaderFunctionArgs) {
-  return R.pipe(fetchArmy, R.andThen(json))(params);
-}
 
 export async function action({ request }: ActionFunctionArgs) {
   try {
@@ -91,7 +77,7 @@ const defineDeleteButton = (armyId: number) => {
 
 export default function EditArmyPage() {
   const { errors } = useActionData<typeof action>() || {};
-  const { army } = useLoaderData<typeof loader>();
+  const { army } = useOutletContext<{ army: ArmyWithUnits }>();
 
   return (
     <>

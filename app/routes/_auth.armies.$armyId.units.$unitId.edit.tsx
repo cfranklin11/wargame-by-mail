@@ -6,6 +6,7 @@ import {
   Params,
   useActionData,
   useLoaderData,
+  useOutletContext,
 } from "@remix-run/react";
 import * as R from "ramda";
 import { ZodError } from "zod";
@@ -26,9 +27,9 @@ import {
   assertHasMiniatures,
   findUnit,
 } from "~/models/unit";
-import { Army, findArmy } from "~/models/army";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { idFromParams } from "~/utils/request";
+import { ArmyWithUnits } from "~/models/army";
 
 const TABLE_COLUMNS = [{ key: "name", label: "Name" }];
 
@@ -41,9 +42,6 @@ export const meta: MetaFunction = () => {
     },
   ];
 };
-
-const fetchArmy = (params: Params<string>) =>
-  R.pipe(idFromParams("armyId"), findArmy, R.andThen(R.objOf("army")))(params);
 
 const fetchUnit = (params: Params<string>) =>
   R.pipe(
@@ -58,13 +56,9 @@ const fetchBaseShapes = () =>
 
 export function loader({ params }: LoaderFunctionArgs) {
   return R.pipe(
-    (params) =>
-      Promise.all([fetchArmy(params), fetchBaseShapes(), fetchUnit(params)]),
+    (params) => Promise.all([fetchBaseShapes(), fetchUnit(params)]),
     R.andThen(
-      R.mergeAll<
-        { army: Army },
-        [{ baseShapes: BaseShape[] }, { unit: UnitWithMiniatures }]
-      >,
+      R.mergeAll<{ baseShapes: BaseShape[] }, [{ unit: UnitWithMiniatures }]>,
     ),
     R.andThen(json),
   )(params);
@@ -115,8 +109,9 @@ const defineDeleteButton = (unitId: number) => {
 };
 
 export default function NewUnitPage() {
-  const { army, baseShapes, unit } = useLoaderData<typeof loader>();
+  const { baseShapes, unit } = useLoaderData<typeof loader>();
   const { errors } = useActionData<typeof action>() || {};
+  const { army } = useOutletContext<{ army: ArmyWithUnits }>();
 
   return (
     <>
