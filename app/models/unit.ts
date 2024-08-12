@@ -22,7 +22,7 @@ export function assertHasMiniatures(
   unit: Unit | UnitWithMiniatures,
 ): asserts unit is UnitWithMiniatures {
   if ((unit as UnitWithMiniatures).miniatures === undefined) {
-    throw new AssertionError();
+    throw new AssertionError({});
   }
 }
 
