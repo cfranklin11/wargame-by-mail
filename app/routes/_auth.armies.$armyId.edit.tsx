@@ -122,7 +122,7 @@ export default function EditArmyPage() {
       <Link to={`/armies/${army.id}/units/new`}>
         <Button>Add units</Button>
       </Link>
-      <Link to="/armies/list">
+      <Link to="/armies">
         <Button>Back to armies</Button>
       </Link>
     </>

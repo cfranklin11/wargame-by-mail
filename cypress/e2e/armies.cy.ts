@@ -11,7 +11,7 @@ describe("Armies", () => {
     cy.login();
     cy.findByRole("link", { name: "Your armies" }).click();
 
-    cy.location("pathname").should("equal", "/armies/list");
+    cy.location("pathname").should("equal", "/armies");
     cy.findByRole("link", { name: "Build an army" }).click();
 
     cy.location("pathname").should("equal", "/armies/new");
@@ -89,7 +89,7 @@ describe("Armies", () => {
     cy.findByRole("row", { name: new RegExp(unitName) });
     cy.findByRole("link", { name: "Back to armies" }).click();
 
-    cy.location("pathname").should("equal", "/armies/list");
+    cy.location("pathname").should("equal", "/armies");
     cy.findByRole("row", { name: new RegExp(armyName) });
     cy.findByRole("link", { name: "Back to account" }).click();
 
@@ -155,7 +155,7 @@ describe("Armies", () => {
     cy.findByRole("row", { name: new RegExp(newUnitName) });
     cy.findByRole("link", { name: "Back to armies" }).click();
 
-    cy.location("pathname").should("equal", "/armies/list");
+    cy.location("pathname").should("equal", "/armies");
     cy.findByRole("row", { name: new RegExp(newArmyName) });
   });
 });

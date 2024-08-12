@@ -22,7 +22,7 @@ export default function AccountPage() {
   return (
     <>
       <PageHeading>{username}</PageHeading>
-      <Link to={"/armies/list"}>
+      <Link to={"/armies"}>
         <Button>Your armies</Button>
       </Link>
     </>
