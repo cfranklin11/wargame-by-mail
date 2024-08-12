@@ -158,4 +158,13 @@ describe("Armies", () => {
     cy.location("pathname").should("equal", "/armies");
     cy.findByRole("row", { name: new RegExp(newArmyName) });
   });
+
+  it("redirects to /armies when unauthorized", () => {
+    cy.fixture("wrong-user").then(({ email, password, username }) => {
+      cy.login(email, password);
+      cy.findByRole("heading", username);
+      cy.visit("/armies/1/edit");
+      cy.findByRole("heading", { name: "Your armies" });
+    });
+  });
 });
