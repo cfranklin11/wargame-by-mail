@@ -23,6 +23,8 @@ import { convertToModelData, formatValidationErrors } from "~/utils/form";
 import { Unit, UnitWithMiniatures } from "~/models/unit";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { ArmyWithUnits } from "~/models/army";
+import { extractUserId } from "~/.server/auth";
+import { idFromParams } from "~/utils/request";
 
 const TABLE_COLUMNS = [{ key: "name", label: "Name" }];
 
@@ -44,19 +46,30 @@ export function loader() {
   )();
 }
 
-const prepareUpdateParams = ({ id, baseShapeId, ...unit }: Unit) => ({
-  where: { id },
+const prepareUpdateParams = ({
+  id,
+  armyId,
+  userId,
+  baseShapeId,
+  ...unit
+}: Unit & { userId: number }) => ({
+  where: { id, armyId, army: { is: { userId } } },
   data: {
     ...unit,
     baseShapeId,
   },
 });
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
+  const userId = await extractUserId(request);
+  const armyId = idFromParams("armyId")(params);
+  const id = idFromParams("userId")(params);
+
   try {
     await R.pipe(
       R.invoker(0, "formData"),
       R.andThen(convertToModelData),
+      R.andThen(R.mergeLeft({ armyId, userId, id })<Unit>),
       R.andThen(prepareUpdateParams),
       R.andThen(db.unit.update),
     )(request);
@@ -150,7 +163,6 @@ export default function EditUnitPage() {
         <FormField isRequired label="Model color" errors={errors?.color}>
           <Input type="color" name="color" defaultValue={unit.color} />
         </FormField>
-        <Input type="hidden" name="id" value={unit.id} />
         <Button type="submit">Save</Button>
       </Form>
       {unit.miniatures.length === 0 ? null : (
