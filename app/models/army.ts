@@ -19,7 +19,7 @@ export function assertHasUnits(
   army: Army | ArmyWithUnits,
 ): asserts army is ArmyWithUnits {
   if ((army as ArmyWithUnits).units === undefined) {
-    throw new AssertionError();
+    throw new AssertionError({});
   }
 }
 
