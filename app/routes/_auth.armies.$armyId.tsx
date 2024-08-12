@@ -2,10 +2,9 @@ import { Box } from "@chakra-ui/react";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { Outlet, redirect, useLoaderData } from "@remix-run/react";
 import * as R from "ramda";
-import invariant from "tiny-invariant";
 import { extractUserId } from "~/.server/auth";
 
-import { Army, assertHasUnits, findArmy } from "~/models/army";
+import { Army, assertHasUnits, findArmyBy } from "~/models/army";
 import { idFromParams } from "~/utils/request";
 
 const prepareResponse = (army: Army) =>
@@ -15,13 +14,10 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 
   return R.pipe(
     idFromParams("armyId"),
-    (armyId) => findArmy(armyId, { include: { units: true } }),
-    R.andThen(
-      R.tap<Army | null, Army>((maybeArmy) => invariant(maybeArmy !== null)),
-    ),
+    (id) => findArmyBy({ where: { id, userId }, include: { units: true } }),
     R.andThen(
       R.ifElse(
-        (army) => army.userId === userId,
+        (maybeArmy): maybeArmy is Army => maybeArmy !== null,
         prepareResponse,
         () => redirect("/armies"),
       ),

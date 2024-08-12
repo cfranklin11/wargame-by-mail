@@ -9,6 +9,7 @@ type FindArmyOptions = Omit<
   Parameters<typeof db.army.findUniqueOrThrow>[0],
   "where"
 >;
+type FindArmyByOptions = Parameters<typeof db.army.findFirst>[0];
 export type ArmyWithUnits = Army & { units: Unit[] };
 
 const SHORT_TEXT_LIMIT = 255;
@@ -42,5 +43,9 @@ export function validateArmy(army: unknown) {
 }
 
 export function findArmy(id: number, options?: FindArmyOptions) {
-  return db.army.findUnique({ ...options, where: { id } });
+  return db.army.findUniqueOrThrow({ ...options, where: { id } });
+}
+
+export function findArmyBy(options: FindArmyByOptions) {
+  return db.army.findFirst(options);
 }
