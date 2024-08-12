@@ -21,6 +21,8 @@ import {
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
 import { Army, ArmyWithUnits } from "~/models/army";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { extractUserId } from "~/.server/auth";
+import { idFromParams } from "~/utils/request";
 
 const TABLE_COLUMNS = [{ key: "name", label: "Name" }];
 
@@ -34,21 +36,24 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-const prepareUpdateParams = ({ id, ...data }: Army) => ({
-  where: { id },
+const prepareUpdateParams = ({ id, userId, ...data }: Army) => ({
+  where: { id, userId },
   data,
 });
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
+  const userId = await extractUserId(request);
+  const id = idFromParams("armyId")(params);
+
   try {
-    await R.pipe(
+    return await R.pipe(
       R.invoker(0, "formData"),
       R.andThen(convertToModelData),
+      R.andThen(R.mergeLeft({ userId, id })<Army>),
       R.andThen(prepareUpdateParams),
       R.andThen(db.army.update),
+      R.andThen(R.always(null)),
     )(request);
-
-    return null;
   } catch (error) {
     if (error instanceof ZodError) {
       return R.pipe(formatValidationErrors, R.objOf("errors"), json)(error);
@@ -95,7 +100,6 @@ export default function EditArmyPage() {
         <FormField label="Description" errors={errors?.description}>
           <Textarea name="description" defaultValue={army.description} />
         </FormField>
-        <Input type="hidden" name="id" value={army.id} />
         <Button type="submit">Save</Button>
       </Form>
       {army.units.length === 0 ? null : (
