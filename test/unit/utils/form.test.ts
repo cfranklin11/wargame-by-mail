@@ -32,6 +32,10 @@ describe("convertToModelData", () => {
     formData.set("name", "My Name");
     formData.set("description", "");
     formData.set("count", "42");
+    formData.set(
+      "notes",
+      "42 is the meaning of life, the universe, and everything.",
+    );
   });
 
   it("parses numeric values", () => {
@@ -43,6 +47,7 @@ describe("convertToModelData", () => {
       name: "My Name",
       description: "",
       count: 42,
+      notes: "42 is the meaning of life, the universe, and everything.",
     });
   });
 });

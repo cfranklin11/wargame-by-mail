@@ -11,7 +11,7 @@ describe("validate", () => {
     const army = validArmyInput;
 
     it("returns the army object", async () => {
-      expect(await validateArmy(army)).toEqual(army);
+      expect(await validateArmy(army)).toEqual(R.omit(["userId"])(army));
     });
   });
 

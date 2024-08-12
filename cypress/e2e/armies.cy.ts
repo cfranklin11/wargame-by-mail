@@ -1,11 +1,12 @@
 import { faker } from "@faker-js/faker";
 
 describe("Armies", () => {
+  const overlyLongName = faker.lorem.words(50);
+
   it("can be created", () => {
     const armyName = faker.company.name();
     const unitName = faker.commerce.department();
     const miniatureName = faker.commerce.productName();
-    const overlyLongName = faker.lorem.words(50);
 
     cy.login();
     cy.findByRole("link", { name: "Your armies" }).click();
@@ -79,6 +80,7 @@ describe("Armies", () => {
     );
     cy.findByRole("link", { name: "Back to unit" }).click();
 
+    // Check that records were saved
     cy.location("pathname").should("match", /armies\/\d+\/units\/\d+\/edit/);
     cy.findByRole("row", { name: new RegExp(miniatureName) });
     cy.findByRole("link", { name: "Back to army" }).click();
@@ -92,5 +94,68 @@ describe("Armies", () => {
     cy.findByRole("link", { name: "Back to account" }).click();
 
     cy.location("pathname").should("equal", "/account");
+  });
+
+  it("can be edited", () => {
+    const newArmyName = faker.company.name();
+    const newUnitName = faker.commerce.department();
+    const newMiniatureName = faker.commerce.productName();
+
+    cy.login();
+    cy.findByRole("link", { name: "Your armies" }).click();
+
+    cy.fixture("army").then((army) => {
+      cy.findByRole("row", { name: new RegExp(army.name) })
+        .findByLabelText("Edit")
+        .click();
+
+      cy.findByRole("heading", { name: `Edit ${army.name}` });
+      cy.findByRole("textbox", { name: "Name" }).type(overlyLongName);
+      cy.findByRole("button", { name: "Save" }).click();
+      // Check serverside validations
+      cy.findByText("String must contain at most 255 character(s)");
+      cy.findByRole("textbox", { name: "Name" }).clear().type(newArmyName);
+      cy.findByRole("button", { name: "Save" }).click();
+
+      cy.fixture("unit").then((unit) => {
+        cy.findByRole("row", { name: new RegExp(unit.name) })
+          .findByLabelText("Edit")
+          .click();
+        cy.findByRole("heading", { name: `Edit ${unit.name}` });
+        cy.findByRole("textbox", { name: "Name" }).type(overlyLongName);
+        cy.findByRole("button", { name: "Save" }).click();
+        // Check serverside validations
+        cy.findByText("String must contain at most 255 character(s)");
+        cy.findByRole("textbox", { name: "Name" }).clear().type(newUnitName);
+        cy.findByRole("button", { name: "Save" }).click();
+
+        cy.fixture("miniature").then((miniature) => {
+          cy.findByRole("row", { name: new RegExp(miniature.name) })
+            .findByLabelText("Edit")
+            .click();
+          cy.findByRole("heading", { name: `Edit ${miniature.name}` });
+          cy.findByRole("textbox", { name: "Name" }).type(overlyLongName);
+          cy.findByRole("button", { name: "Save" }).click();
+          // Check serverside validations
+          cy.findByText("String must contain at most 255 character(s)");
+          cy.findByRole("textbox", { name: "Name" })
+            .clear()
+            .type(newMiniatureName);
+          cy.findByRole("button", { name: "Save" }).click();
+        });
+      });
+    });
+
+    // Check that records were updated
+    cy.findByRole("link", { name: "Back to unit" }).click();
+
+    cy.findByRole("row", { name: new RegExp(newMiniatureName) });
+    cy.findByRole("link", { name: "Back to army" }).click();
+
+    cy.findByRole("row", { name: new RegExp(newUnitName) });
+    cy.findByRole("link", { name: "Back to armies" }).click();
+
+    cy.location("pathname").should("equal", "/armies/list");
+    cy.findByRole("row", { name: new RegExp(newArmyName) });
   });
 });

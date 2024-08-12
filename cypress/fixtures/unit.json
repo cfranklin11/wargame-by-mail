@@ -1,0 +1,9 @@
+{
+  "name": "My Test Unit",
+  "stats": "A: 1, B: 2, C: 3, D: 4",
+  "gear": "1x Feather, 2x Mittens",
+  "notes": "This is a unit. There are many like it, but this one is mine.",
+  "color": "#ff0000",
+  "baseLength": 25,
+  "baseWidth": 25
+}

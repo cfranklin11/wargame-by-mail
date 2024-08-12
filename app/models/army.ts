@@ -35,7 +35,6 @@ const ArmyInput = z.object({
   gameSystem: shortTextValidations,
   faction: shortTextValidations,
   description: longTextValidations,
-  userId: z.number().int().min(1),
 });
 
 export function validateArmy(army: unknown) {

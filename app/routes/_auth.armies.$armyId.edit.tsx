@@ -10,16 +10,21 @@ import {
 } from "@remix-run/react";
 import * as R from "ramda";
 import { ZodError } from "zod";
-import invariant from "tiny-invariant";
 
 import db from "~/.server/db";
-import { Button, FormField, PageHeading, RecordTable } from "~/components";
+import {
+  Button,
+  FormField,
+  IconButton,
+  PageHeading,
+  RecordTable,
+} from "~/components";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
 import { Army, assertHasUnits, findArmy } from "~/models/army";
+import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { idFromParams } from "~/utils/request";
 
-const TABLE_LABELS = {
-  name: "Name",
-};
+const TABLE_COLUMNS = [{ key: "name", label: "Name" }];
 
 export const meta: MetaFunction = () => {
   return [
@@ -33,17 +38,15 @@ export const meta: MetaFunction = () => {
 
 const fetchArmy = (params: Params<string>) =>
   R.pipe(
-    R.prop("armyId"),
-    R.tap((armyId) => invariant(typeof armyId === "string")),
-    parseInt,
+    idFromParams("armyId"),
     (armyId) => findArmy(armyId, { include: { units: true } }),
     R.andThen(R.tap(assertHasUnits)),
     R.andThen(R.objOf("army")),
   )(params);
 
-const prepareUpdateParams = (army: Army) => ({
-  where: { id: army.id },
-  data: army,
+const prepareUpdateParams = ({ id, ...data }: Army) => ({
+  where: { id },
+  data,
 });
 
 export function loader({ params }: LoaderFunctionArgs) {
@@ -58,6 +61,8 @@ export async function action({ request }: ActionFunctionArgs) {
       R.andThen(prepareUpdateParams),
       R.andThen(db.army.update),
     )(request);
+
+    return null;
   } catch (error) {
     if (error instanceof ZodError) {
       return R.pipe(formatValidationErrors, R.objOf("errors"), json)(error);
@@ -67,6 +72,23 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
+const defineEditButton = (armyId: number) => {
+  const EditButton = (unitId: number) => (
+    <Link to={`/armies/${armyId}/units/${unitId}/edit`}>
+      <IconButton label="Edit" Icon={EditIcon}></IconButton>
+    </Link>
+  );
+  return EditButton;
+};
+const defineDeleteButton = (armyId: number) => {
+  const DeleteButton = (unitId: number) => (
+    <Link to={`/armies/${armyId}/units/${unitId}/delete`}>
+      <IconButton label="Delete" Icon={DeleteIcon}></IconButton>
+    </Link>
+  );
+  return DeleteButton;
+};
+
 export default function EditArmyPage() {
   const { errors } = useActionData<typeof action>() || {};
   const { army } = useLoaderData<typeof loader>();
@@ -74,27 +96,27 @@ export default function EditArmyPage() {
   return (
     <>
       <PageHeading>Edit {army.name}</PageHeading>
-      <Form method="post" reloadDocument>
+      <Form method="post">
         <FormField isRequired label="Name" errors={errors?.name}>
           <Input type="text" name="name" defaultValue={army.name} />
         </FormField>
         <FormField isRequired label="Game system" errors={errors?.gameSystem}>
-          <Input type="text" name="gameSystem" defaultValue={army.name} />
+          <Input type="text" name="gameSystem" defaultValue={army.gameSystem} />
         </FormField>
         <FormField isRequired label="Faction" errors={errors?.faction}>
-          <Input type="text" name="faction" defaultValue={army.name} />
+          <Input type="text" name="faction" defaultValue={army.faction} />
         </FormField>
         <FormField label="Description" errors={errors?.description}>
-          <Textarea name="description" defaultValue={army.name} />
+          <Textarea name="description" defaultValue={army.description} />
         </FormField>
-        <Input type="hidden" name="armyId" value={army.id} />
+        <Input type="hidden" name="id" value={army.id} />
         <Button type="submit">Save</Button>
       </Form>
       {army.units.length === 0 ? null : (
         <RecordTable
-          columns={["name"]}
+          columns={TABLE_COLUMNS}
           records={army.units}
-          labelMap={TABLE_LABELS}
+          buttons={[defineEditButton(army.id), defineDeleteButton(army.id)]}
         />
       )}
       <Link to={`/armies/${army.id}/units/new`}>

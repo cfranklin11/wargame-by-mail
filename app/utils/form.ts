@@ -20,12 +20,14 @@ export function formatValidationErrors(error: ZodError) {
   }, EMPTY_ERRORS);
 }
 
+const isNumeric = (value: string) =>
+  ![parseInt(value), Number(value)].some(Number.isNaN);
 export function convertToModelData(formData: FormData) {
   return R.pipe(
     R.invoker(0, "entries"),
     R.map(([key, value]) => [
       key,
-      Number.isNaN(parseInt(value)) ? value : parseInt(value),
+      R.ifElse(isNumeric, Number, R.identity)(value),
     ]),
     Object.fromEntries,
   )(formData);

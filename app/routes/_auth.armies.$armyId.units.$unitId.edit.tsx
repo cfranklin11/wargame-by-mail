@@ -7,12 +7,17 @@ import {
   useActionData,
   useLoaderData,
 } from "@remix-run/react";
-import invariant from "tiny-invariant";
 import * as R from "ramda";
 import { ZodError } from "zod";
 
 import db, { BaseShape } from "~/.server/db";
-import { Button, FormField, PageHeading, RecordTable } from "~/components";
+import {
+  Button,
+  FormField,
+  IconButton,
+  PageHeading,
+  RecordTable,
+} from "~/components";
 import { Input, Select, Textarea } from "@chakra-ui/react";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
 import {
@@ -22,10 +27,10 @@ import {
   findUnit,
 } from "~/models/unit";
 import { Army, findArmy } from "~/models/army";
+import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { idFromParams } from "~/utils/request";
 
-const TABLE_LABELS = {
-  name: "Name",
-};
+const TABLE_COLUMNS = [{ key: "name", label: "Name" }];
 
 export const meta: MetaFunction = () => {
   return [
@@ -38,19 +43,11 @@ export const meta: MetaFunction = () => {
 };
 
 const fetchArmy = (params: Params<string>) =>
-  R.pipe(
-    R.prop("armyId"),
-    R.tap((armyId) => invariant(typeof armyId === "string")),
-    parseInt,
-    findArmy,
-    R.andThen(R.objOf("army")),
-  )(params);
+  R.pipe(idFromParams("armyId"), findArmy, R.andThen(R.objOf("army")))(params);
 
 const fetchUnit = (params: Params<string>) =>
   R.pipe(
-    R.prop("unitId"),
-    R.tap((unitId) => invariant(typeof unitId === "string")),
-    parseInt,
+    idFromParams("unitId"),
     (unitId) => findUnit(unitId, { include: { miniatures: true } }),
     R.andThen(R.tap(assertHasMiniatures)),
     R.andThen(R.objOf("unit")),
@@ -58,11 +55,6 @@ const fetchUnit = (params: Params<string>) =>
 
 const fetchBaseShapes = () =>
   R.pipe(db.baseShape.findMany, R.andThen(R.objOf("baseShapes")))();
-
-const prepareUpdateParams = (unit: Unit) => ({
-  where: { id: unit.id },
-  data: unit,
-});
 
 export function loader({ params }: LoaderFunctionArgs) {
   return R.pipe(
@@ -78,6 +70,14 @@ export function loader({ params }: LoaderFunctionArgs) {
   )(params);
 }
 
+const prepareUpdateParams = ({ id, baseShapeId, ...unit }: Unit) => ({
+  where: { id },
+  data: {
+    ...unit,
+    baseShapeId,
+  },
+});
+
 export async function action({ request }: ActionFunctionArgs) {
   try {
     await R.pipe(
@@ -86,6 +86,8 @@ export async function action({ request }: ActionFunctionArgs) {
       R.andThen(prepareUpdateParams),
       R.andThen(db.unit.update),
     )(request);
+
+    return null;
   } catch (error) {
     if (error instanceof ZodError) {
       return R.pipe(formatValidationErrors, R.objOf("errors"), json)(error);
@@ -95,6 +97,23 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
+const defineEditButton = (unitId: number) => {
+  const EditButton = (miniatureId: number) => (
+    <Link to={`/units/${unitId}/miniatures/${miniatureId}/edit`}>
+      <IconButton label="Edit" Icon={EditIcon}></IconButton>
+    </Link>
+  );
+  return EditButton;
+};
+const defineDeleteButton = (unitId: number) => {
+  const DeleteButton = (miniatureId: number) => (
+    <Link to={`/units/${unitId}/miniatures/${miniatureId}/delete`}>
+      <IconButton label="Delete" Icon={DeleteIcon}></IconButton>
+    </Link>
+  );
+  return DeleteButton;
+};
+
 export default function NewUnitPage() {
   const { army, baseShapes, unit } = useLoaderData<typeof loader>();
   const { errors } = useActionData<typeof action>() || {};
@@ -102,7 +121,7 @@ export default function NewUnitPage() {
   return (
     <>
       <PageHeading>Edit {unit.name}</PageHeading>
-      <Form method="post" reloadDocument>
+      <Form method="post">
         <FormField isRequired label="Name" errors={errors?.name}>
           <Input type="text" name="name" defaultValue={unit.name} />
         </FormField>
@@ -153,17 +172,14 @@ export default function NewUnitPage() {
         <FormField isRequired label="Model color" errors={errors?.color}>
           <Input type="color" name="color" defaultValue={unit.color} />
         </FormField>
-        <Input type="hidden" name="armyId" value={army.id} />
-        <Input type="hidden" name="unitId" value={unit.id} />
-        <Button type="submit" value="save" name="submit">
-          Save
-        </Button>
+        <Input type="hidden" name="id" value={unit.id} />
+        <Button type="submit">Save</Button>
       </Form>
       {unit.miniatures.length === 0 ? null : (
         <RecordTable
-          columns={["name"]}
+          columns={TABLE_COLUMNS}
           records={unit.miniatures}
-          labelMap={TABLE_LABELS}
+          buttons={[defineEditButton(unit.id), defineDeleteButton(unit.id)]}
         />
       )}
       <Link to={`/units/${unit.id}/miniatures/new`}>

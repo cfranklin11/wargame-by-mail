@@ -7,7 +7,6 @@ import {
   useActionData,
   useLoaderData,
 } from "@remix-run/react";
-import invariant from "tiny-invariant";
 import * as R from "ramda";
 import { Input, Textarea } from "@chakra-ui/react";
 import { ZodError } from "zod";
@@ -17,9 +16,7 @@ import { Button, FormField, PageHeading } from "~/components";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
 import { Miniature, findMiniature } from "~/models/miniature";
 import { Unit, findUnit } from "~/models/unit";
-
-type FormErrors = Partial<Record<keyof Miniature, string[]>>;
-const EMPTY_FORM_ERRORS: FormErrors = {};
+import { idFromParams } from "~/utils/request";
 
 export const meta: MetaFunction = () => {
   return [
@@ -32,26 +29,18 @@ export const meta: MetaFunction = () => {
 };
 
 const fetchUnit = (params: Params<string>) =>
-  R.pipe(
-    R.prop("unitId"),
-    R.tap((unitId) => invariant(typeof unitId === "string")),
-    parseInt,
-    findUnit,
-    R.andThen(R.objOf("unit")),
-  )(params);
+  R.pipe(idFromParams("unitId"), findUnit, R.andThen(R.objOf("unit")))(params);
 
 const fetchMiniature = (params: Params<string>) =>
   R.pipe(
-    R.prop("miniatureId"),
-    R.tap((miniatureId) => invariant(typeof miniatureId === "string")),
-    parseInt,
+    idFromParams("miniatureId"),
     findMiniature,
     R.andThen(R.objOf("miniature")),
   )(params);
 
-const prepareUpdateParams = (miniature: Miniature) => ({
-  where: { id: miniature.id },
-  data: miniature,
+const prepareUpdateParams = ({ id, ...data }: Miniature) => ({
+  where: { id },
+  data,
 });
 
 export function loader({ params }: LoaderFunctionArgs) {
@@ -70,7 +59,8 @@ export async function action({ request }: ActionFunctionArgs) {
       R.andThen(prepareUpdateParams),
       R.andThen(db.miniature.update),
     )(request);
-    return json({ errors: EMPTY_FORM_ERRORS });
+
+    return null;
   } catch (error) {
     if (error instanceof ZodError) {
       return R.pipe(formatValidationErrors, R.objOf("errors"), json)(error);
@@ -109,8 +99,7 @@ export default function NewUnitPage() {
             defaultValue={miniature.count}
           />
         </FormField>
-        <Input type="hidden" name="unitId" value={unit.id} />
-        <Input type="hidden" name="miniatureId" value={miniature.id} />
+        <Input type="hidden" name="id" value={miniature.id} />
         <Button type="submit">Save</Button>
       </Form>
       <Link to={`/armies/${unit.armyId}/units/${unit.id}/edit`}>
