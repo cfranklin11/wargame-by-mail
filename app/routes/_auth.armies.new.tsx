@@ -14,7 +14,7 @@ import db from "~/.server/db";
 import { Button, FormField, PageHeading } from "~/components";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
 import { Army } from "~/models/army";
-import { authenticator } from "~/.server/auth";
+import { extractUserId } from "~/.server/auth";
 
 export const meta: MetaFunction = () => {
   return [
@@ -28,9 +28,7 @@ export const meta: MetaFunction = () => {
 
 export async function action({ request }: ActionFunctionArgs) {
   try {
-    const { id: userId } = await authenticator.isAuthenticated(request, {
-      failureRedirect: "/login",
-    });
+    const userId = await extractUserId(request);
     return await R.pipe(
       R.invoker(0, "formData"),
       R.andThen(convertToModelData),
