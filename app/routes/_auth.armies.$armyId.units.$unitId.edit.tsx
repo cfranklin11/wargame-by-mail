@@ -1,9 +1,8 @@
-import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
+import { ActionFunctionArgs, json } from "@remix-run/node";
 import {
   Form,
   Link,
   MetaFunction,
-  Params,
   useActionData,
   useLoaderData,
   useOutletContext,
@@ -11,7 +10,7 @@ import {
 import * as R from "ramda";
 import { ZodError } from "zod";
 
-import db, { BaseShape } from "~/.server/db";
+import db from "~/.server/db";
 import {
   Button,
   FormField,
@@ -21,14 +20,8 @@ import {
 } from "~/components";
 import { Input, Select, Textarea } from "@chakra-ui/react";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
-import {
-  Unit,
-  UnitWithMiniatures,
-  assertHasMiniatures,
-  findUnit,
-} from "~/models/unit";
+import { Unit, UnitWithMiniatures } from "~/models/unit";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
-import { idFromParams } from "~/utils/request";
 import { ArmyWithUnits } from "~/models/army";
 
 const TABLE_COLUMNS = [{ key: "name", label: "Name" }];
@@ -43,25 +36,12 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-const fetchUnit = (params: Params<string>) =>
-  R.pipe(
-    idFromParams("unitId"),
-    (unitId) => findUnit(unitId, { include: { miniatures: true } }),
-    R.andThen(R.tap(assertHasMiniatures)),
-    R.andThen(R.objOf("unit")),
-  )(params);
-
-const fetchBaseShapes = () =>
-  R.pipe(db.baseShape.findMany, R.andThen(R.objOf("baseShapes")))();
-
-export function loader({ params }: LoaderFunctionArgs) {
+export function loader() {
   return R.pipe(
-    (params) => Promise.all([fetchBaseShapes(), fetchUnit(params)]),
-    R.andThen(
-      R.mergeAll<{ baseShapes: BaseShape[] }, [{ unit: UnitWithMiniatures }]>,
-    ),
+    db.baseShape.findMany,
+    R.andThen(R.objOf("baseShapes")),
     R.andThen(json),
-  )(params);
+  )();
 }
 
 const prepareUpdateParams = ({ id, baseShapeId, ...unit }: Unit) => ({
@@ -108,10 +88,13 @@ const defineDeleteButton = (unitId: number) => {
   return DeleteButton;
 };
 
-export default function NewUnitPage() {
-  const { baseShapes, unit } = useLoaderData<typeof loader>();
+export default function EditUnitPage() {
+  const { baseShapes } = useLoaderData<typeof loader>();
   const { errors } = useActionData<typeof action>() || {};
-  const { army } = useOutletContext<{ army: ArmyWithUnits }>();
+  const { army, unit } = useOutletContext<{
+    army: ArmyWithUnits;
+    unit: UnitWithMiniatures;
+  }>();
 
   return (
     <>
@@ -130,9 +113,9 @@ export default function NewUnitPage() {
           <Textarea name="notes" defaultValue={unit.notes} />
         </FormField>
         <FormField isRequired label="Base shape">
-          <Select name="baseShapeId">
+          <Select name="baseShapeId" defaultValue={unit.baseShapeId}>
             {baseShapes.map(({ name, id }) => (
-              <option key={id} value={id} selected={id === unit.baseShapeId}>
+              <option key={id} value={id}>
                 {name}
               </option>
             ))}
