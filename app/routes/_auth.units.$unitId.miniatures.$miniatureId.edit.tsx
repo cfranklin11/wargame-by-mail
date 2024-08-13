@@ -1,11 +1,10 @@
-import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
+import { ActionFunctionArgs, json } from "@remix-run/node";
 import {
   Form,
   Link,
   MetaFunction,
-  Params,
   useActionData,
-  useLoaderData,
+  useOutletContext,
 } from "@remix-run/react";
 import * as R from "ramda";
 import { Input, Textarea } from "@chakra-ui/react";
@@ -14,9 +13,8 @@ import { ZodError } from "zod";
 import db from "~/.server/db";
 import { Button, FormField, PageHeading } from "~/components";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
-import { Miniature, findMiniature } from "~/models/miniature";
-import { Unit, findUnit } from "~/models/unit";
-import { idFromParams } from "~/utils/request";
+import { Miniature } from "~/models/miniature";
+import { UnitWithMiniatures } from "~/models/unit";
 
 export const meta: MetaFunction = () => {
   return [
@@ -28,28 +26,10 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-const fetchUnit = (params: Params<string>) =>
-  R.pipe(idFromParams("unitId"), findUnit, R.andThen(R.objOf("unit")))(params);
-
-const fetchMiniature = (params: Params<string>) =>
-  R.pipe(
-    idFromParams("miniatureId"),
-    findMiniature,
-    R.andThen(R.objOf("miniature")),
-  )(params);
-
 const prepareUpdateParams = ({ id, ...data }: Miniature) => ({
   where: { id },
   data,
 });
-
-export function loader({ params }: LoaderFunctionArgs) {
-  return R.pipe(
-    (params) => Promise.all([fetchUnit(params), fetchMiniature(params)]),
-    R.andThen(R.mergeAll<{ unit: Unit }, [{ miniature: Miniature }]>),
-    R.andThen(json),
-  )(params);
-}
 
 export async function action({ request }: ActionFunctionArgs) {
   try {
@@ -71,7 +51,10 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function NewUnitPage() {
-  const { unit, miniature } = useLoaderData<typeof loader>();
+  const { unit, miniature } = useOutletContext<{
+    unit: UnitWithMiniatures;
+    miniature: Miniature;
+  }>();
   const { errors } = useActionData<typeof action>() || {};
 
   return (
