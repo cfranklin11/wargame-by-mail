@@ -1,20 +1,14 @@
 import { Box } from "@chakra-ui/react";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
-import {
-  Outlet,
-  redirect,
-  useLoaderData,
-  useOutletContext,
-} from "@remix-run/react";
+import { Outlet, redirect, useLoaderData } from "@remix-run/react";
 import * as R from "ramda";
-import { extractUserId } from "~/.server/auth";
-import { findMiniatureBy, Miniature } from "~/models/miniature";
 
-import { UnitWithMiniatures } from "~/models/unit";
+import { extractUserId } from "~/.server/auth";
+import { assertHasUnit, findMiniatureBy, Miniature } from "~/models/miniature";
 import { idFromParams } from "~/utils/request";
 
 const prepareResponse = (miniature: Miniature) =>
-  R.pipe(R.objOf("miniature"), json)(miniature);
+  R.pipe(R.tap(assertHasUnit), R.objOf("miniature"), json)(miniature);
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const userId = await extractUserId(request);
@@ -22,10 +16,13 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   return R.pipe(
     idFromParams("miniatureId"),
     (id) =>
-      findMiniatureBy({
-        id,
-        unit: { is: { army: { is: { userId } } } },
-      }),
+      findMiniatureBy(
+        {
+          id,
+          unit: { is: { army: { is: { userId } } } },
+        },
+        { include: { unit: true } },
+      ),
     R.andThen(
       R.ifElse(
         (miniature: Miniature | null): miniature is Miniature =>
@@ -39,13 +36,10 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 
 export default function MiniaturePage() {
   const { miniature } = useLoaderData<typeof loader>();
-  const { unit } = useOutletContext<{
-    unit: UnitWithMiniatures;
-  }>();
 
   return (
     <Box>
-      <Outlet context={{ unit, miniature }} />
+      <Outlet context={{ miniature }} />
     </Box>
   );
 }

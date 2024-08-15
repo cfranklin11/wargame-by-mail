@@ -13,8 +13,7 @@ import { ZodError } from "zod";
 import db from "~/.server/db";
 import { Button, FormField, PageHeading } from "~/components";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
-import { Miniature } from "~/models/miniature";
-import { UnitWithMiniatures } from "~/models/unit";
+import { Miniature, MiniatureWithUnit } from "~/models/miniature";
 import { extractUserId } from "~/.server/auth";
 import { idFromParams } from "~/utils/request";
 
@@ -64,11 +63,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function NewUnitPage() {
-  const { unit, miniature } = useOutletContext<{
-    unit: UnitWithMiniatures;
-    miniature: Miniature;
+  const { miniature } = useOutletContext<{
+    miniature: MiniatureWithUnit;
   }>();
   const { errors } = useActionData<typeof action>() || {};
+  const { unit } = miniature;
 
   return (
     <>

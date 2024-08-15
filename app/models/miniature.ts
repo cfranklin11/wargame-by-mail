@@ -1,6 +1,8 @@
 import { z } from "zod";
 
-import db from "../.server/db";
+import db, { Miniature } from "../.server/db";
+import { Unit } from "./unit";
+import { AssertionError } from "assert";
 export type { Miniature } from "../.server/db";
 
 type FindMiniatureOptions = Omit<
@@ -13,11 +15,20 @@ type FindMiniatureConditions = Omit<
   Parameters<typeof db.miniature.findFirst>[0],
   "select" | "include" | "orderBy" | "cursor" | "take" | "skip" | "distinct"
 >;
+export type MiniatureWithUnit = Miniature & { unit: Unit };
 
 const SHORT_TEXT_LIMIT = 255;
 const LONG_TEXT_LIMIT = SHORT_TEXT_LIMIT * 4;
 const MIN_REQUIRED_TEXT = 1;
 const MIN_REQUIRED_NUMBER = 1;
+
+export function assertHasUnit(
+  miniature: Miniature | MiniatureWithUnit,
+): asserts miniature is MiniatureWithUnit {
+  if ((miniature as MiniatureWithUnit).unit === undefined) {
+    throw new AssertionError({});
+  }
+}
 
 const shortTextValidations = z
   .string()

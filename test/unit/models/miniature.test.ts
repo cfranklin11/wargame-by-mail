@@ -1,8 +1,16 @@
 import * as R from "ramda";
 import { ZodError } from "zod";
+import { AssertionError } from "assert";
 
-import { miniatureInputFactory } from "../../factories/miniature";
-import { validateMiniature } from "../../../app/models/miniature";
+import {
+  miniatureFactory,
+  miniatureInputFactory,
+} from "../../factories/miniature";
+import {
+  assertHasUnit,
+  validateMiniature,
+} from "../../../app/models/miniature";
+import { unitFactory } from "../../factories/unit";
 
 describe("validate", () => {
   const validMiniatureInput = miniatureInputFactory.build();
@@ -76,6 +84,25 @@ describe("validate", () => {
           ]),
         );
       }
+    });
+  });
+});
+
+describe("assertHasUnit", () => {
+  describe("when it has a unit", () => {
+    const unit = unitFactory.build();
+    const miniature = { ...miniatureFactory.build(), unit };
+
+    it("doesn't throw an error", () => {
+      expect(() => assertHasUnit(miniature)).not.toThrow();
+    });
+  });
+
+  describe("when it doesn't have units", () => {
+    const miniature = miniatureFactory.build();
+
+    it("throws an AssertionError", () => {
+      expect(() => assertHasUnit(miniature)).toThrow(AssertionError);
     });
   });
 });
