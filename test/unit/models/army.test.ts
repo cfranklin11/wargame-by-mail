@@ -1,10 +1,12 @@
 import * as R from "ramda";
 import { ZodError } from "zod";
+import { AssertionError } from "assert";
 
-import { armyInputFactory } from "../../factories/army";
-import { validateArmy } from "../../../app/models/army";
+import { armyFactory, armyInputFactory } from "../../factories/army";
+import { assertHasUnits, validateArmy } from "../../../app/models/army";
+import { unitFactory } from "../../factories/unit";
 
-describe("validate", () => {
+describe("validateArmy", () => {
   const validArmyInput = armyInputFactory.build();
 
   describe("when all attributes are valid", () => {
@@ -38,6 +40,25 @@ describe("validate", () => {
           ]),
         );
       }
+    });
+  });
+});
+
+describe("assertHasUnits", () => {
+  describe("when it has units", () => {
+    const units = unitFactory.build();
+    const army = { ...armyFactory.build(), units };
+
+    it("doesn't throw an error", () => {
+      expect(() => assertHasUnits(army)).not.toThrow();
+    });
+  });
+
+  describe("when it doesn't have units", () => {
+    const army = armyFactory.build();
+
+    it("throws an AssertionError", () => {
+      expect(() => assertHasUnits(army)).toThrow(AssertionError);
     });
   });
 });

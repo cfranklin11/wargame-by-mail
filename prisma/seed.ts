@@ -2,6 +2,7 @@ import { parseArgs } from "node:util";
 
 import db from "~/.server/db";
 import fixtureUser from "../cypress/fixtures/user.json";
+import fixtureWrongUser from "../cypress/fixtures/wrong-user.json";
 import fixtureArmy from "../cypress/fixtures/army.json";
 import fixtureUnit from "../cypress/fixtures/unit.json";
 import fixtureMiniature from "../cypress/fixtures/miniature.json";
@@ -21,6 +22,7 @@ async function seedBaseData() {
 }
 
 async function seedTestData() {
+  await db.user.create({ data: fixtureWrongUser });
   const { id: userId } = await db.user.create({ data: fixtureUser });
   const { id: armyId } = await db.army.create({
     data: { ...fixtureArmy, userId },

@@ -1,23 +1,22 @@
-import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
+import { ActionFunctionArgs, json } from "@remix-run/node";
 import {
   Form,
   Link,
   MetaFunction,
-  Params,
   redirect,
   useActionData,
   useLoaderData,
+  useOutletContext,
 } from "@remix-run/react";
 import * as R from "ramda";
 import { ZodError } from "zod";
 
-import db, { BaseShape } from "~/.server/db";
+import db from "~/.server/db";
 import { Button, FormField, PageHeading } from "~/components";
 import { Input, Select, Textarea } from "@chakra-ui/react";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
 import { Unit } from "~/models/unit";
-import { Army } from "~/models/army";
-import { idFromParams } from "~/utils/request";
+import { ArmyWithUnits } from "~/models/army";
 
 export const meta: MetaFunction = () => {
   return [
@@ -29,24 +28,12 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-const fetchArmy = (params: Params<string>) =>
-  R.pipe(
-    idFromParams("armyId"),
-    R.objOf("id"),
-    R.objOf("where"),
-    db.army.findUniqueOrThrow,
-    R.andThen(R.objOf("army")),
-  )(params);
-
-const fetchBaseShapes = () =>
-  R.pipe(db.baseShape.findMany, R.andThen(R.objOf("baseShapes")))();
-
-export function loader({ params }: LoaderFunctionArgs) {
+export function loader() {
   return R.pipe(
-    (params) => Promise.all([fetchArmy(params), fetchBaseShapes()]),
-    R.andThen(R.mergeAll<{ army: Army }, [{ baseShapes: BaseShape[] }]>),
+    db.baseShape.findMany,
+    R.andThen(R.objOf("baseShapes")),
     R.andThen(json),
-  )(params);
+  )();
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -70,8 +57,9 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function NewUnitPage() {
-  const { army, baseShapes } = useLoaderData<typeof loader>();
+  const { baseShapes } = useLoaderData<typeof loader>();
   const { errors } = useActionData<typeof action>() || {};
+  const { army } = useOutletContext<{ army: ArmyWithUnits }>();
 
   return (
     <>

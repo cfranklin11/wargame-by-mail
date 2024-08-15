@@ -9,7 +9,8 @@ type FindArmyOptions = Omit<
   Parameters<typeof db.army.findUniqueOrThrow>[0],
   "where"
 >;
-type ArmyWithUnits = Army & { units: Unit[] };
+type FindArmyByOptions = Parameters<typeof db.army.findFirst>[0];
+export type ArmyWithUnits = Army & { units: Unit[] };
 
 const SHORT_TEXT_LIMIT = 255;
 const LONG_TEXT_LIMIT = SHORT_TEXT_LIMIT * 4;
@@ -19,7 +20,7 @@ export function assertHasUnits(
   army: Army | ArmyWithUnits,
 ): asserts army is ArmyWithUnits {
   if ((army as ArmyWithUnits).units === undefined) {
-    throw new AssertionError();
+    throw new AssertionError({});
   }
 }
 
@@ -43,4 +44,8 @@ export function validateArmy(army: unknown) {
 
 export function findArmy(id: number, options?: FindArmyOptions) {
   return db.army.findUniqueOrThrow({ ...options, where: { id } });
+}
+
+export function findArmyBy(options: FindArmyByOptions) {
+  return db.army.findFirst(options);
 }

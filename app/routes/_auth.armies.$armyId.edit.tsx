@@ -1,12 +1,11 @@
 import { Input, Textarea } from "@chakra-ui/react";
-import { ActionFunctionArgs, json, LoaderFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, json } from "@remix-run/node";
 import {
   Form,
   Link,
   MetaFunction,
   useActionData,
-  Params,
-  useLoaderData,
+  useOutletContext,
 } from "@remix-run/react";
 import * as R from "ramda";
 import { ZodError } from "zod";
@@ -20,8 +19,9 @@ import {
   RecordTable,
 } from "~/components";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
-import { Army, assertHasUnits, findArmy } from "~/models/army";
+import { Army, ArmyWithUnits } from "~/models/army";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { extractUserId } from "~/.server/auth";
 import { idFromParams } from "~/utils/request";
 
 const TABLE_COLUMNS = [{ key: "name", label: "Name" }];
@@ -36,33 +36,24 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-const fetchArmy = (params: Params<string>) =>
-  R.pipe(
-    idFromParams("armyId"),
-    (armyId) => findArmy(armyId, { include: { units: true } }),
-    R.andThen(R.tap(assertHasUnits)),
-    R.andThen(R.objOf("army")),
-  )(params);
-
-const prepareUpdateParams = ({ id, ...data }: Army) => ({
-  where: { id },
+const prepareUpdateParams = ({ id, userId, ...data }: Army) => ({
+  where: { id, userId },
   data,
 });
 
-export function loader({ params }: LoaderFunctionArgs) {
-  return R.pipe(fetchArmy, R.andThen(json))(params);
-}
+export async function action({ request, params }: ActionFunctionArgs) {
+  const userId = await extractUserId(request);
+  const id = idFromParams("armyId")(params);
 
-export async function action({ request }: ActionFunctionArgs) {
   try {
-    await R.pipe(
+    return await R.pipe(
       R.invoker(0, "formData"),
       R.andThen(convertToModelData),
+      R.andThen(R.mergeLeft({ userId, id })<Army>),
       R.andThen(prepareUpdateParams),
       R.andThen(db.army.update),
+      R.andThen(R.always(null)),
     )(request);
-
-    return null;
   } catch (error) {
     if (error instanceof ZodError) {
       return R.pipe(formatValidationErrors, R.objOf("errors"), json)(error);
@@ -91,7 +82,7 @@ const defineDeleteButton = (armyId: number) => {
 
 export default function EditArmyPage() {
   const { errors } = useActionData<typeof action>() || {};
-  const { army } = useLoaderData<typeof loader>();
+  const { army } = useOutletContext<{ army: ArmyWithUnits }>();
 
   return (
     <>
@@ -109,7 +100,6 @@ export default function EditArmyPage() {
         <FormField label="Description" errors={errors?.description}>
           <Textarea name="description" defaultValue={army.description} />
         </FormField>
-        <Input type="hidden" name="id" value={army.id} />
         <Button type="submit">Save</Button>
       </Form>
       {army.units.length === 0 ? null : (
@@ -122,7 +112,7 @@ export default function EditArmyPage() {
       <Link to={`/armies/${army.id}/units/new`}>
         <Button>Add units</Button>
       </Link>
-      <Link to="/armies/list">
+      <Link to="/armies">
         <Button>Back to armies</Button>
       </Link>
     </>

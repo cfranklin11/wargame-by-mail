@@ -3,7 +3,7 @@ import { Link, useLoaderData } from "@remix-run/react";
 import * as R from "ramda";
 
 import { PageHeading, Button, RecordTable } from "~/components";
-import { authenticator } from "~/.server/auth";
+import { extractUserId } from "~/.server/auth";
 import db from "~/.server/db";
 import IconButton from "~/components/IconButton";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
@@ -26,11 +26,7 @@ export const meta: MetaFunction = () => {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   return R.pipe(
-    (request) =>
-      authenticator.isAuthenticated(request, {
-        failureRedirect: "/login",
-      }),
-    R.andThen(R.prop("id")),
+    extractUserId,
     R.andThen(R.objOf("userId")),
     R.andThen(R.objOf("where")),
     R.andThen(db.army.findMany),

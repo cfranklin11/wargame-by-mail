@@ -18,11 +18,30 @@ Cypress.Commands.add("login", (email, password) => {
   );
 });
 
+Cypress.Commands.add("resetFixtureArmy", () => {
+  cy.fixture("army").then((army) => {
+    cy.fixture("unit").then((unit) => {
+      cy.fixture("miniature").then((miniature) => {
+        // Kind of cheating here, because dynamically fetching the IDs
+        // of these records would be a pain, and I know that they're the
+        // first ones created via seeds.
+        const FIXTURE_ID = 1;
+        cy.task("resetArmy", {
+          army: { id: FIXTURE_ID, ...army },
+          units: [{ id: FIXTURE_ID, ...unit }],
+          miniatures: [{ id: FIXTURE_ID, ...miniature }],
+        });
+      });
+    });
+  });
+});
+
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Cypress {
     interface Chainable {
       login(email?: string, password?: string): Chainable<void>;
+      resetFixtureArmy(): Chainable<void>;
     }
   }
 }

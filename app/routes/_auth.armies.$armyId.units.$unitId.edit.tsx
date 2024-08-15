@@ -1,16 +1,16 @@
-import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
+import { ActionFunctionArgs, json } from "@remix-run/node";
 import {
   Form,
   Link,
   MetaFunction,
-  Params,
   useActionData,
   useLoaderData,
+  useOutletContext,
 } from "@remix-run/react";
 import * as R from "ramda";
 import { ZodError } from "zod";
 
-import db, { BaseShape } from "~/.server/db";
+import db from "~/.server/db";
 import {
   Button,
   FormField,
@@ -20,14 +20,10 @@ import {
 } from "~/components";
 import { Input, Select, Textarea } from "@chakra-ui/react";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
-import {
-  Unit,
-  UnitWithMiniatures,
-  assertHasMiniatures,
-  findUnit,
-} from "~/models/unit";
-import { Army, findArmy } from "~/models/army";
+import { Unit, UnitWithMiniatures } from "~/models/unit";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { ArmyWithUnits } from "~/models/army";
+import { extractUserId } from "~/.server/auth";
 import { idFromParams } from "~/utils/request";
 
 const TABLE_COLUMNS = [{ key: "name", label: "Name" }];
@@ -42,47 +38,36 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-const fetchArmy = (params: Params<string>) =>
-  R.pipe(idFromParams("armyId"), findArmy, R.andThen(R.objOf("army")))(params);
-
-const fetchUnit = (params: Params<string>) =>
-  R.pipe(
-    idFromParams("unitId"),
-    (unitId) => findUnit(unitId, { include: { miniatures: true } }),
-    R.andThen(R.tap(assertHasMiniatures)),
-    R.andThen(R.objOf("unit")),
-  )(params);
-
-const fetchBaseShapes = () =>
-  R.pipe(db.baseShape.findMany, R.andThen(R.objOf("baseShapes")))();
-
-export function loader({ params }: LoaderFunctionArgs) {
+export function loader() {
   return R.pipe(
-    (params) =>
-      Promise.all([fetchArmy(params), fetchBaseShapes(), fetchUnit(params)]),
-    R.andThen(
-      R.mergeAll<
-        { army: Army },
-        [{ baseShapes: BaseShape[] }, { unit: UnitWithMiniatures }]
-      >,
-    ),
+    db.baseShape.findMany,
+    R.andThen(R.objOf("baseShapes")),
     R.andThen(json),
-  )(params);
+  )();
 }
 
-const prepareUpdateParams = ({ id, baseShapeId, ...unit }: Unit) => ({
-  where: { id },
+const prepareUpdateParams = ({
+  id,
+  userId,
+  baseShapeId,
+  ...unit
+}: Unit & { userId: number }) => ({
+  where: { id, army: { is: { userId } } },
   data: {
     ...unit,
     baseShapeId,
   },
 });
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
+  const userId = await extractUserId(request);
+  const id = idFromParams("unitId")(params);
+
   try {
     await R.pipe(
       R.invoker(0, "formData"),
       R.andThen(convertToModelData),
+      R.andThen(R.mergeLeft({ userId, id })<Unit & { userId: number }>),
       R.andThen(prepareUpdateParams),
       R.andThen(db.unit.update),
     )(request);
@@ -114,9 +99,13 @@ const defineDeleteButton = (unitId: number) => {
   return DeleteButton;
 };
 
-export default function NewUnitPage() {
-  const { army, baseShapes, unit } = useLoaderData<typeof loader>();
+export default function EditUnitPage() {
+  const { baseShapes } = useLoaderData<typeof loader>();
   const { errors } = useActionData<typeof action>() || {};
+  const { army, unit } = useOutletContext<{
+    army: ArmyWithUnits;
+    unit: UnitWithMiniatures;
+  }>();
 
   return (
     <>
@@ -135,9 +124,9 @@ export default function NewUnitPage() {
           <Textarea name="notes" defaultValue={unit.notes} />
         </FormField>
         <FormField isRequired label="Base shape">
-          <Select name="baseShapeId">
+          <Select name="baseShapeId" defaultValue={unit.baseShapeId}>
             {baseShapes.map(({ name, id }) => (
-              <option key={id} value={id} selected={id === unit.baseShapeId}>
+              <option key={id} value={id}>
                 {name}
               </option>
             ))}
@@ -172,7 +161,6 @@ export default function NewUnitPage() {
         <FormField isRequired label="Model color" errors={errors?.color}>
           <Input type="color" name="color" defaultValue={unit.color} />
         </FormField>
-        <Input type="hidden" name="id" value={unit.id} />
         <Button type="submit">Save</Button>
       </Form>
       {unit.miniatures.length === 0 ? null : (

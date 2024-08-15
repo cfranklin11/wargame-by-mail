@@ -1,11 +1,10 @@
-import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
+import { ActionFunctionArgs, json } from "@remix-run/node";
 import {
   Form,
   Link,
   MetaFunction,
-  Params,
   useActionData,
-  useLoaderData,
+  useOutletContext,
 } from "@remix-run/react";
 import * as R from "ramda";
 import { Input, Textarea } from "@chakra-ui/react";
@@ -14,8 +13,8 @@ import { ZodError } from "zod";
 import db from "~/.server/db";
 import { Button, FormField, PageHeading } from "~/components";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
-import { Miniature, findMiniature } from "~/models/miniature";
-import { Unit, findUnit } from "~/models/unit";
+import { Miniature, MiniatureWithUnit } from "~/models/miniature";
+import { extractUserId } from "~/.server/auth";
 import { idFromParams } from "~/utils/request";
 
 export const meta: MetaFunction = () => {
@@ -28,34 +27,27 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-const fetchUnit = (params: Params<string>) =>
-  R.pipe(idFromParams("unitId"), findUnit, R.andThen(R.objOf("unit")))(params);
-
-const fetchMiniature = (params: Params<string>) =>
-  R.pipe(
-    idFromParams("miniatureId"),
-    findMiniature,
-    R.andThen(R.objOf("miniature")),
-  )(params);
-
-const prepareUpdateParams = ({ id, ...data }: Miniature) => ({
-  where: { id },
+const prepareUpdateParams = ({
+  id,
+  userId,
+  ...data
+}: Miniature & { userId: number }) => ({
+  where: {
+    id,
+    unit: { is: { army: { is: { userId } } } },
+  },
   data,
 });
 
-export function loader({ params }: LoaderFunctionArgs) {
-  return R.pipe(
-    (params) => Promise.all([fetchUnit(params), fetchMiniature(params)]),
-    R.andThen(R.mergeAll<{ unit: Unit }, [{ miniature: Miniature }]>),
-    R.andThen(json),
-  )(params);
-}
+export async function action({ request, params }: ActionFunctionArgs) {
+  const userId = await extractUserId(request);
+  const id = idFromParams("miniatureId")(params);
 
-export async function action({ request }: ActionFunctionArgs) {
   try {
     await R.pipe(
       R.invoker(0, "formData"),
       R.andThen(convertToModelData),
+      R.andThen(R.mergeLeft({ userId, id })<Miniature & { userId: number }>),
       R.andThen(prepareUpdateParams),
       R.andThen(db.miniature.update),
     )(request);
@@ -71,8 +63,11 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function NewUnitPage() {
-  const { unit, miniature } = useLoaderData<typeof loader>();
+  const { miniature } = useOutletContext<{
+    miniature: MiniatureWithUnit;
+  }>();
   const { errors } = useActionData<typeof action>() || {};
+  const { unit } = miniature;
 
   return (
     <>
@@ -99,7 +94,6 @@ export default function NewUnitPage() {
             defaultValue={miniature.count}
           />
         </FormField>
-        <Input type="hidden" name="id" value={miniature.id} />
         <Button type="submit">Save</Button>
       </Form>
       <Link to={`/armies/${unit.armyId}/units/${unit.id}/edit`}>

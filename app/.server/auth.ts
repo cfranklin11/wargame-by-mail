@@ -2,6 +2,7 @@ import { Authenticator } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
 import invariant from "tiny-invariant";
 import bcrypt from "bcryptjs";
+import * as R from "ramda";
 
 import { sessionStorage } from "./session";
 import db from "./db";
@@ -32,3 +33,14 @@ authenticator.use(
     return user;
   }),
 );
+
+export async function extractUserId(request: Request) {
+  return R.pipe(
+    (request) =>
+      authenticator.isAuthenticated(request, {
+        failureRedirect: "/login",
+      }),
+    R.andThen(R.tap<User | null, User>((maybeUser) => maybeUser !== null)),
+    R.andThen(R.prop("id")),
+  )(request);
+}

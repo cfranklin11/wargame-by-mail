@@ -14,7 +14,7 @@ import db from "~/.server/db";
 import { Button, FormField, PageHeading } from "~/components";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
 import { Army } from "~/models/army";
-import { authenticator } from "~/.server/auth";
+import { extractUserId } from "~/.server/auth";
 
 export const meta: MetaFunction = () => {
   return [
@@ -28,16 +28,14 @@ export const meta: MetaFunction = () => {
 
 export async function action({ request }: ActionFunctionArgs) {
   try {
-    const { id } = await authenticator.isAuthenticated(request, {
-      failureRedirect: "/login",
-    });
+    const userId = await extractUserId(request);
     return await R.pipe(
       R.invoker(0, "formData"),
       R.andThen(convertToModelData),
-      R.andThen(R.mergeLeft({ userId: id }))<Army>,
+      R.andThen(R.mergeLeft({ userId }))<Army>,
       R.andThen(R.objOf("data")),
       R.andThen(db.army.create),
-      R.andThen((army) => redirect(`/armies/${army.id}/edit`)),
+      R.andThen((army: Army) => redirect(`/armies/${army.id}/edit`)),
     )(request);
   } catch (error) {
     if (error instanceof ZodError) {

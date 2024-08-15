@@ -8,7 +8,7 @@ import {
   Tr,
 } from "@chakra-ui/react";
 
-type RecordItem = Record<string, string | number> & { id: number };
+type RecordItem = Record<string, string | number | Date> & { id: number };
 interface Column {
   key: string;
   label: string;
@@ -35,7 +35,7 @@ export default function RecordTable({ columns, records, buttons }: Props) {
           {records.map((record) => (
             <Tr key={record.id}>
               {columns.map(({ key }) => (
-                <Td key={key}>{record[key]}</Td>
+                <Td key={key}>{String(record[key])}</Td>
               ))}
               {buttons?.map((button, idx) => (
                 <Td key={idx}>{button(record.id)}</Td>
