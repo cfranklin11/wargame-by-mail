@@ -11,6 +11,12 @@ type FindUnitOptions = Omit<
   Parameters<typeof db.unit.findUniqueOrThrow>[0],
   "where"
 >;
+// Prisma won't let me access the "where" key, because it's optional,
+// so I'm just omitting every other key in the param
+type FindUnitConditions = Omit<
+  Parameters<typeof db.miniature.findFirst>[0],
+  "select" | "include" | "orderBy" | "cursor" | "take" | "skip" | "distinct"
+>;
 export type UnitWithMiniatures = Unit & { miniatures: Miniature[] };
 
 const SHORT_TEXT_LIMIT = 255;
@@ -49,4 +55,11 @@ export function validateUnit(unit: unknown) {
 
 export function findUnit(id: number, options?: FindUnitOptions) {
   return db.unit.findUniqueOrThrow({ ...options, where: { id } });
+}
+
+export function findUnitBy(
+  conditions: FindUnitConditions,
+  options?: FindUnitOptions,
+) {
+  return db.unit.findFirst({ where: conditions, ...options });
 }

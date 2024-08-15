@@ -48,12 +48,11 @@ export function loader() {
 
 const prepareUpdateParams = ({
   id,
-  armyId,
   userId,
   baseShapeId,
   ...unit
 }: Unit & { userId: number }) => ({
-  where: { id, armyId, army: { is: { userId } } },
+  where: { id, army: { is: { userId } } },
   data: {
     ...unit,
     baseShapeId,
@@ -62,14 +61,13 @@ const prepareUpdateParams = ({
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const userId = await extractUserId(request);
-  const armyId = idFromParams("armyId")(params);
-  const id = idFromParams("userId")(params);
+  const id = idFromParams("unitId")(params);
 
   try {
     await R.pipe(
       R.invoker(0, "formData"),
       R.andThen(convertToModelData),
-      R.andThen(R.mergeLeft({ armyId, userId, id })<Unit>),
+      R.andThen(R.mergeLeft({ userId, id })<Unit & { userId: number }>),
       R.andThen(prepareUpdateParams),
       R.andThen(db.unit.update),
     )(request);
