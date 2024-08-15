@@ -15,6 +15,8 @@ import { Button, FormField, PageHeading } from "~/components";
 import { convertToModelData, formatValidationErrors } from "~/utils/form";
 import { Miniature } from "~/models/miniature";
 import { UnitWithMiniatures } from "~/models/unit";
+import { extractUserId } from "~/.server/auth";
+import { idFromParams } from "~/utils/request";
 
 export const meta: MetaFunction = () => {
   return [
@@ -26,16 +28,27 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-const prepareUpdateParams = ({ id, ...data }: Miniature) => ({
-  where: { id },
+const prepareUpdateParams = ({
+  id,
+  userId,
+  ...data
+}: Miniature & { userId: number }) => ({
+  where: {
+    id,
+    unit: { is: { army: { is: { userId } } } },
+  },
   data,
 });
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
+  const userId = await extractUserId(request);
+  const id = idFromParams("miniatureId")(params);
+
   try {
     await R.pipe(
       R.invoker(0, "formData"),
       R.andThen(convertToModelData),
+      R.andThen(R.mergeLeft({ userId, id })<Miniature & { userId: number }>),
       R.andThen(prepareUpdateParams),
       R.andThen(db.miniature.update),
     )(request);
@@ -82,7 +95,6 @@ export default function NewUnitPage() {
             defaultValue={miniature.count}
           />
         </FormField>
-        <Input type="hidden" name="id" value={miniature.id} />
         <Button type="submit">Save</Button>
       </Form>
       <Link to={`/armies/${unit.armyId}/units/${unit.id}/edit`}>
