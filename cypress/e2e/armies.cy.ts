@@ -33,10 +33,9 @@ describe("Armies", () => {
     cy.findByRole("textbox", { name: "Name" }).clear().type(armyName);
     cy.findByRole("button", { name: "Save" }).click();
 
-    cy.location("pathname").should("match", /armies\/\d+\/edit/);
+    cy.findByRole("heading", { name: `Edit ${armyName}` });
     cy.findByRole("link", { name: "Add units" }).click();
 
-    cy.location("pathname").should("match", /armies\/\d+\/units\/new/);
     cy.findByRole("heading", { name: `Add a unit to ${armyName}` });
     cy.findByRole("textbox", { name: "Name" }).type(overlyLongName);
     cy.findByRole("textbox", { name: "Stats" }).type(faker.lorem.sentences());
@@ -57,10 +56,9 @@ describe("Armies", () => {
     cy.findByRole("textbox", { name: "Name" }).clear().type(unitName);
     cy.findByRole("button", { name: "Save" }).click();
 
-    cy.location("pathname").should("match", /armies\/\d+\/units\/\d+\/edit/);
+    cy.findByRole("heading", { name: `Edit ${unitName}` });
     cy.findByRole("link", { name: "Add models" }).click();
 
-    cy.location("pathname").should("match", /units\/\d+\/miniatures\/new/);
     cy.findByRole("heading", { name: `Add a model to ${unitName}` });
     cy.findByRole("textbox", { name: "Name" }).type(overlyLongName);
     cy.findByRole("textbox", { name: "Stats" }).type(faker.lorem.sentences());
@@ -74,18 +72,15 @@ describe("Armies", () => {
     cy.findByRole("textbox", { name: "Name" }).clear().type(miniatureName);
     cy.findByRole("button", { name: "Save" }).click();
 
-    cy.location("pathname").should(
-      "match",
-      /units\/\d+\/miniatures\/\d+\/edit/,
-    );
+    cy.findByRole("heading", { name: `Edit ${miniatureName}` });
     cy.findByRole("link", { name: "Back to unit" }).click();
 
     // Check that records were saved
-    cy.location("pathname").should("match", /armies\/\d+\/units\/\d+\/edit/);
+    cy.findByRole("heading", { name: `Edit ${unitName}` });
     cy.findByRole("row", { name: new RegExp(miniatureName) });
     cy.findByRole("link", { name: "Back to army" }).click();
 
-    cy.location("pathname").should("match", /armies\/\d+\/edit/);
+    cy.findByRole("heading", { name: `Edit ${armyName}` });
     cy.findByRole("row", { name: new RegExp(unitName) });
     cy.findByRole("link", { name: "Back to armies" }).click();
 
@@ -101,6 +96,7 @@ describe("Armies", () => {
     const newUnitName = faker.commerce.department();
     const newMiniatureName = faker.commerce.productName();
 
+    cy.resetFixtureArmy();
     cy.login();
     cy.findByRole("link", { name: "Your armies" }).click();
 
@@ -164,6 +160,11 @@ describe("Armies", () => {
       cy.login(email, password);
       cy.findByRole("heading", username);
       cy.visit("/armies/1/edit");
+      cy.findByRole("heading", { name: "Your armies" });
+
+      cy.findByRole("link", { name: "Back to account" }).click();
+      cy.findByRole("heading", { name: username });
+      cy.visit("/units/1/miniatures/1/edit");
       cy.findByRole("heading", { name: "Your armies" });
     });
   });
